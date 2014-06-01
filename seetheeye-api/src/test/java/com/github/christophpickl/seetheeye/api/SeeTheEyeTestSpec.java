@@ -23,13 +23,18 @@ public abstract class SeeTheEyeTestSpec {
         newEye(config -> {}).get(Beans.Empty.class);
     }
 
+    // FIXME implement me!
+    public void installConcreteBean_withPackagePrivateVisibility_breakUpViaReflection() {
+        newEye(config -> config.installConcreteBean(Beans.PackagePrivate.class)).get(Beans.PackagePrivate.class);
+    }
+
 
     // INSTALL CONCRETE BEAN
     // -===============================================================================================================-
 
     public void installConcreteBean_installAndGetVerySameConcreteType_returnThatBean() {
         assertThat(newEye(config -> config.installConcreteBean(Beans.Empty.class)).get(Beans.Empty.class),
-                instanceOf(Beans.Empty.class));
+            instanceOf(Beans.Empty.class));
     }
 
 

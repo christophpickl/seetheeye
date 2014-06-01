@@ -18,8 +18,10 @@ public abstract class AbstractConfig implements Config {
 
     private Collection<Bean> installedBeans = new LinkedHashSet<>();
 
-    // TODO installForInterface(Class<?> interface).toConcreteBean(Class<?> beanType)
-    // TODO installForInterface(Class<T> interface).toInstance(T bean)
+    private boolean yetConfigured;
+
+    // installForInterface(Class<?> interface).toConcreteBean(Class<?> beanType)
+    // installForInterface(Class<T> interface).toInstance(T bean)
 
     public final BeanConfigurationPostProcessor installConcreteBean(Class<?> beanType) {
         LOG.trace("installConcreteBean(beanType={})", Preconditions.checkNotNull(beanType).getName());
@@ -28,6 +30,10 @@ public abstract class AbstractConfig implements Config {
             throw new SeeTheEyeException.ConfigInvalidException("Can not register an interface as a concrete bean: " + beanType.getName() + "!");
         }
         return install(beanType);
+    }
+
+    protected void configure() {
+        // overridable by subclass
     }
 
     public final BeanConfigurationPostProcessor installInstance(Object instance) {
@@ -45,6 +51,10 @@ public abstract class AbstractConfig implements Config {
     }
 
     Collection<Bean> getInstalledBeans() {
+        if (!yetConfigured) {
+            configure(); // maybe subclass is providing something :)
+            yetConfigured = true;
+        }
         return installedBeans;
     }
 

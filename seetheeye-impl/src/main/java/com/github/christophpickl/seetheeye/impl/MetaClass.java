@@ -58,7 +58,7 @@ public class MetaClass<T> {
     }
 
     private static <T> Constructor<T> findSuitableConstructor(Class<T> type) {
-        Constructor[] ctors = type.getConstructors();
+        Constructor[] ctors = type.getDeclaredConstructors();
         if (ctors.length == 1 && Modifier.isPublic(ctors[0].getModifiers()) &&
                 ctors[0].getParameters().length == 0) {
             LOG.trace("Found default ctor for type: {}", type.getName());

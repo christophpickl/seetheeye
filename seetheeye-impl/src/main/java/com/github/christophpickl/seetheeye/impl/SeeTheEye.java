@@ -25,6 +25,7 @@ public class SeeTheEye implements SeeTheEyeApi {
 
     SeeTheEye(Collection<Bean> beans) {
         this.beans = Preconditions.checkNotNull(beans);
+        LOG.trace("new (beans=" + Arrays.toString(beans.toArray()) + ")");
         for (Bean bean : beans) {
             if (bean.getBeanInterface().isPresent()) {
                 LOG.trace("Registering bean of type '{}' to interface type '{}'.",

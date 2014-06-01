@@ -11,6 +11,7 @@ public final class Beans {
     // -===============================================================================================================-
 
     public static class Empty { }
+    static class PackagePrivate { }
 
     public interface BeanInterface { }
     public interface BeanInterfaceSub extends BeanInterface { }
