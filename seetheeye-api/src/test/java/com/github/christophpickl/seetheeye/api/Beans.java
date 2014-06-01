@@ -1,11 +1,14 @@
 package com.github.christophpickl.seetheeye.api;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 public final class Beans {
 
     private Beans() {}
 
+    // BASE TYPES
+    // -===============================================================================================================-
 
     public static class Empty { }
 
@@ -18,6 +21,9 @@ public final class Beans {
     public static class BeanInterfaceImpl2 implements BeanInterface { }
     public static class BeanMultiInterfaceImpl implements BeanInterface, BeanInterface2 { }
 
+    // SCOPE
+    // -===============================================================================================================-
+
     public static class ConstructorCounting {
         public static int constructorCalled; // watch out to reset the variable before/after running test against this
         public ConstructorCounting() {
@@ -25,24 +31,26 @@ public final class Beans {
         }
     }
 
+    @Singleton public static class ConstructorCountingWithSingletonAnnotation {
+        public static int constructorCalled; // watch out to reset the variable before/after running test against this
+        public ConstructorCountingWithSingletonAnnotation() {
+            constructorCalled++;
+        }
+    }
+
+    // @INJECT
+    // -===============================================================================================================-
 
     public static class BeanA {
         private final BeanB subBean;
-
-        @Inject
-        public BeanA(BeanB subBean) {
+        @Inject public BeanA(BeanB subBean) {
             this.subBean = subBean;
         }
-
         public BeanB getSubBean() {
             return subBean;
         }
     }
-
-    public static class BeanB {
-
-    }
-
+    public static class BeanB { }
 
 
 }

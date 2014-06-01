@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Map;
 
 public class SeeTheEyeBuilder {
 
@@ -53,7 +52,7 @@ public class SeeTheEyeBuilder {
                     installedBeanInterfaces.add(interfase);
 
                 } else {
-                    MetaClass type = bean.getBeanType();
+                    MetaClass type = bean.getMetaClass();
                     if (installedBeanTypes.contains(type.getClazz())) {
                         throw new SeeTheEyeException.ConfigInvalidException("Duplicate bean type registration for: " + type.getName() + "!");
                     }

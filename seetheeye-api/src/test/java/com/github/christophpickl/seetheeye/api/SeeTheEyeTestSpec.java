@@ -13,6 +13,7 @@ public abstract class SeeTheEyeTestSpec {
     @BeforeMethod
     public void init() {
         Beans.ConstructorCounting.constructorCalled = 0;
+        Beans.ConstructorCountingWithSingletonAnnotation.constructorCalled = 0;
     }
 
     protected abstract SeeTheEyeApi newEye(Action1<Config> action);
@@ -149,18 +150,25 @@ public abstract class SeeTheEyeTestSpec {
     // SCOPE
     // -===============================================================================================================-
 
-    public void installConcreteBean_inDefaultPrototypeScopeAndGettingTwoTimes_constructTwoInstances() {
+    public void installConcreteBeanInScope_asDefaultPrototypeAndGettingTwoTimes_constructTwoInstances() {
         SeeTheEyeApi eye = newEye(config -> config.installConcreteBean(Beans.ConstructorCounting.class));
         eye.get(Beans.ConstructorCounting.class);
         eye.get(Beans.ConstructorCounting.class);
         assertThat(Beans.ConstructorCounting.constructorCalled, equalTo(2));
     }
 
-    public void installingSingletonScopedBean_constructBeanOnlyOnce() {
+    public void installConcreteBeanInScope_asSingleton_constructBeanOnlyOnce() {
         SeeTheEyeApi eye = newEye(config -> config.installConcreteBean(Beans.ConstructorCounting.class).inScope(Scope.SINGLETON));
         eye.get(Beans.ConstructorCounting.class);
         eye.get(Beans.ConstructorCounting.class);
         assertThat(Beans.ConstructorCounting.constructorCalled, equalTo(1));
+    }
+
+    public void installConcreteBeanInScope_withSingletonAnnotation_constructBeanOnlyOnce() {
+        SeeTheEyeApi eye = newEye(config -> config.installConcreteBean(Beans.ConstructorCountingWithSingletonAnnotation.class));
+        eye.get(Beans.ConstructorCountingWithSingletonAnnotation.class);
+        eye.get(Beans.ConstructorCountingWithSingletonAnnotation.class);
+        assertThat(Beans.ConstructorCountingWithSingletonAnnotation.constructorCalled, equalTo(1));
     }
 
     // -===============================================================================================================-

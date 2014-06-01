@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -69,4 +70,7 @@ public class MetaClass<T> {
                 "nor is the default constructor existing!");
     }
 
+    public boolean hasAnnotation(Class<? extends Annotation> annotation) {
+        return clazz.isAnnotationPresent(annotation);
+    }
 }

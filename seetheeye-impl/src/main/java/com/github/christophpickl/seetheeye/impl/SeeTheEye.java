@@ -30,10 +30,10 @@ public class SeeTheEye implements SeeTheEyeApi {
         for (Bean bean : beans) {
             if (bean.getBeanInterface().isPresent()) {
                 LOG.trace("Registering bean of type '{}' to interface type '{}'.",
-                    bean.getBeanType().getName(), bean.getBeanInterface().get().getName());
+                    bean.getMetaClass().getName(), bean.getBeanInterface().get().getName());
                 beansByInterface.put(bean.getBeanInterface().get(), bean);
             } else {
-                beansByType.put(bean.getBeanType().getClazz(), bean);
+                beansByType.put(bean.getMetaClass().getClazz(), bean);
             }
         }
     }
@@ -50,6 +50,9 @@ public class SeeTheEye implements SeeTheEyeApi {
             LOG.trace("Returning user defined instance: {}", foundBean.getUserDefinedInstance().get());
             return (T) foundBean.getUserDefinedInstance().get();
         }
+        if (foundBean.isSingletonAnnotationPresent()) {
+            return lookupSingleton(foundBean);
+        }
 
         return foundBean.getScope().actOn(new Scope.ScopeCallback<T>() {
             @Override public T onPrototype() {
@@ -58,17 +61,21 @@ public class SeeTheEye implements SeeTheEyeApi {
                 return (T) instance;
             }
             @Override public T onSingelton() {
-                Object cachedInstance = singletonsByBean.get(foundBean);
-                if (cachedInstance != null) {
-                    LOG.trace("Returning cached singleton instance: {}", cachedInstance);
-                    return (T) cachedInstance;
-                }
-                T instance = foundBean.newInstance();
-                singletonsByBean.put(foundBean, instance);
-                LOG.trace("Returning initially created singleton instance: {}", cachedInstance);
-                return instance;
+                return lookupSingleton(foundBean);
             }
         });
+    }
+
+    private <T> T lookupSingleton(Bean bean) {
+        Object cachedInstance = singletonsByBean.get(bean);
+        if (cachedInstance != null) {
+            LOG.trace("Returning cached singleton instance: {}", cachedInstance);
+            return (T) cachedInstance;
+        }
+        T instance = bean.newInstance();
+        singletonsByBean.put(bean, instance);
+        LOG.trace("Returning initially created singleton instance: {}", cachedInstance);
+        return instance;
     }
 
     private Bean findBean(Class<?> beanType) {

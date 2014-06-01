@@ -5,11 +5,12 @@ import com.github.christophpickl.seetheeye.api.Scope;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
 import com.google.common.base.Preconditions;
 
+import javax.inject.Singleton;
 import java.util.Optional;
 
 class Bean implements BeanConfigurationPostProcessor {
 
-    private final MetaClass beanType;
+    private final MetaClass metaClass;
 
     private Scope scope = Scope.PROTOTYPE;
 
@@ -17,8 +18,11 @@ class Bean implements BeanConfigurationPostProcessor {
 
     private Optional<Object> userDefinedInstance = Optional.empty();
 
+    private final boolean singletonAnnotationPresent;
+
     public Bean(Class<?> beanType) {
-        this.beanType = new MetaClass(Preconditions.checkNotNull(beanType));
+        this.metaClass = new MetaClass(Preconditions.checkNotNull(beanType));
+        this.singletonAnnotationPresent = metaClass.hasAnnotation(Singleton.class);
     }
 
     @Override public BeanConfigurationPostProcessor inScope(Scope scope) {
@@ -31,16 +35,16 @@ class Bean implements BeanConfigurationPostProcessor {
         if (!beanInterface.isInterface()) {
             throw new SeeTheEyeException.ConfigInvalidException("Must be an interface type: " + beanInterface.getName());
         }
-        if (!beanType.isImplementing(beanInterface)) {
-            throw new SeeTheEyeException.ConfigInvalidException("Bean '" + beanType.getName() + "' does not implement interface: " + beanInterface.getName());
+        if (!metaClass.isImplementing(beanInterface)) {
+            throw new SeeTheEyeException.ConfigInvalidException("Bean '" + metaClass.getName() + "' does not implement interface: " + beanInterface.getName());
         }
 
         this.beanInterface = Optional.of(beanInterface);
         return this;
     }
 
-    public MetaClass getBeanType() {
-        return beanType;
+    public MetaClass getMetaClass() {
+        return metaClass;
     }
 
     public Optional<Class<?>> getBeanInterface() {
@@ -49,7 +53,7 @@ class Bean implements BeanConfigurationPostProcessor {
 
 
     public <T> T newInstance() {
-        return (T) beanType.newInstance();
+        return (T) metaClass.newInstance();
     }
 
     public Scope getScope() {
@@ -65,4 +69,7 @@ class Bean implements BeanConfigurationPostProcessor {
     }
 
 
+    public boolean isSingletonAnnotationPresent() {
+        return singletonAnnotationPresent;
+    }
 }
