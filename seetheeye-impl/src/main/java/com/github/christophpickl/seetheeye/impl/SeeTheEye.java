@@ -1,5 +1,8 @@
 package com.github.christophpickl.seetheeye.impl;
 
+import com.github.christophpickl.seetheeye.api.Scope;
+import com.github.christophpickl.seetheeye.api.SeeTheEyeApi;
+import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
 import com.google.common.base.Preconditions;
 import com.google.inject.Guice;
 import org.slf4j.Logger;
@@ -12,11 +15,7 @@ import java.util.Map;
 /**
  * Main entry point.
  */
-public class SeeTheEye {
-
-    static {
-        Log4j.init();
-    }
+public class SeeTheEye implements SeeTheEyeApi {
 
     private static final Logger LOG = LoggerFactory.getLogger(SeeTheEye.class);
 

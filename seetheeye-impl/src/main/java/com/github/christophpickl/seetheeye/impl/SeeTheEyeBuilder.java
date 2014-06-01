@@ -11,19 +11,19 @@ public class SeeTheEyeBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(SeeTheEyeBuilder.class);
 
-    private final Collection<Config> configs = new HashSet<>();
+    private final Collection<AbstractConfig> configs = new HashSet<>();
 
     SeeTheEyeBuilder() {}
 
-    public SeeTheEyeBuilder configs(Config config, Config... evenMore) {
+    public SeeTheEyeBuilder configs(AbstractConfig config, AbstractConfig... evenMore) {
         addConfig(config);
-        for (Config more : evenMore) {
+        for (AbstractConfig more : evenMore) {
             addConfig(more);
         }
         return this;
     }
 
-    private void addConfig(Config config) {
+    private void addConfig(AbstractConfig config) {
         LOG.debug("Installing config: {}", config.getClass().getName());
         configs.add(config);
     }
@@ -31,7 +31,7 @@ public class SeeTheEyeBuilder {
 
     public SeeTheEye build() {
         Collection<Bean> beans = new LinkedHashSet<>();
-        for (Config config : configs) {
+        for (AbstractConfig config : configs) {
             beans.addAll(config.getInstalledBeans());
         }
         return new SeeTheEye(beans);

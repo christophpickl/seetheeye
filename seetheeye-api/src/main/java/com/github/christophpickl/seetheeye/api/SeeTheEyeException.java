@@ -1,4 +1,4 @@
-package com.github.christophpickl.seetheeye.impl;
+package com.github.christophpickl.seetheeye.api;
 
 public class SeeTheEyeException extends RuntimeException {
 

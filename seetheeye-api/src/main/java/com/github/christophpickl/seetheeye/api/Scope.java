@@ -1,4 +1,4 @@
-package com.github.christophpickl.seetheeye.impl;
+package com.github.christophpickl.seetheeye.api;
 
 public enum Scope {
 
@@ -17,7 +17,7 @@ public enum Scope {
 
     public abstract <T> T actOn(ScopeCallback<T> callback);
 
-    interface ScopeCallback<T> {
+    public interface ScopeCallback<T> {
         T onPrototype();
         T onSingelton();
     }

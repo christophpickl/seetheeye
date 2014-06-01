@@ -1,5 +1,8 @@
 package com.github.christophpickl.seetheeye.impl;
 
+import com.github.christophpickl.seetheeye.api.BeanConfigurationPostProcessor;
+import com.github.christophpickl.seetheeye.api.Scope;
+import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
 import com.google.common.base.Preconditions;
 
 class Bean implements BeanConfigurationPostProcessor {
