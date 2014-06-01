@@ -4,4 +4,6 @@ public interface Config {
 
     BeanConfigurationPostProcessor installConcreteBean(Class<?> beanType);
 
+    BeanConfigurationPostProcessor installInstance(Object instance);
+
 }

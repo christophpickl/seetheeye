@@ -22,13 +22,19 @@ public class SeeTheEye implements SeeTheEyeApi {
     private Collection<Bean> beans;
 
     private final Map<Class<?>, Bean> beansByType = new HashMap<>();
-
+    private final Map<Class<?>, Bean> beansByInterface = new HashMap<>();
     private final Map<Bean, Object> singletonsByBean = new HashMap<>();
 
     SeeTheEye(Collection<Bean> beans) {
         this.beans = Preconditions.checkNotNull(beans);
         for (Bean bean : beans) {
-            beansByType.put(bean.getBeanType(), bean);
+            if (bean.getBeanInterface().isPresent()) {
+                LOG.trace("Registering bean of type '{}' to interface type '{}'.",
+                    bean.getBeanType().getName(), bean.getBeanInterface().get().getName());
+                beansByInterface.put(bean.getBeanInterface().get(), bean);
+            } else {
+                beansByType.put(bean.getBeanType().getClazz(), bean);
+            }
         }
     }
 
@@ -38,25 +44,42 @@ public class SeeTheEye implements SeeTheEyeApi {
 
     public <T> T get(Class<T> beanType) {
         LOG.debug("get(beanType={})", beanType.getName());
-        Bean foundBean = beansByType.get(beanType);
-        if (foundBean == null) {
-            throw new SeeTheEyeException.UnresolvableBeanException(beanType);
+        Bean foundBean = findBean(beanType);
+
+        if (foundBean.getUserDefinedInstance().isPresent()) {
+            LOG.trace("Returning user defined instance: {}", foundBean.getUserDefinedInstance().get());
+            return (T) foundBean.getUserDefinedInstance().get();
         }
 
         return foundBean.getScope().actOn(new Scope.ScopeCallback<T>() {
             @Override public T onPrototype() {
-                return foundBean.newInstance();
+                Object instance = foundBean.newInstance();
+                LOG.trace("Returning prototype scoped new instance: {}", instance);
+                return (T) instance;
             }
             @Override public T onSingelton() {
                 Object cachedInstance = singletonsByBean.get(foundBean);
                 if (cachedInstance != null) {
+                    LOG.trace("Returning cached singleton instance: {}", cachedInstance);
                     return (T) cachedInstance;
                 }
                 T instance = foundBean.newInstance();
                 singletonsByBean.put(foundBean, instance);
+                LOG.trace("Returning initially created singleton instance: {}", cachedInstance);
                 return instance;
             }
         });
+    }
+
+    private Bean findBean(Class<?> beanType) {
+        Bean byConcreteType = beansByType.get(beanType);
+        if (byConcreteType != null) {
+            return byConcreteType;
+        }
+        if (beansByInterface.containsKey(beanType)) {
+            return beansByInterface.get(beanType);
+        }
+        throw new SeeTheEyeException.UnresolvableBeanException(beanType);
     }
 
 }

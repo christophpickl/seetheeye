@@ -29,6 +29,11 @@ public class SeeTheEyeException extends RuntimeException {
         }
     }
 
+    public static class ConfigInvalidException extends SeeTheEyeException {
+        public ConfigInvalidException(String message) {
+            super(message);
+        }
+    }
 
 
 

@@ -2,6 +2,7 @@ package com.github.christophpickl.seetheeye.impl;
 
 import com.github.christophpickl.seetheeye.api.BeanConfigurationPostProcessor;
 import com.github.christophpickl.seetheeye.api.Config;
+import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
@@ -21,9 +22,23 @@ public abstract class AbstractConfig implements Config {
     // TODO installForInterface(Class<T> interface).toInstance(T bean)
 
     public final BeanConfigurationPostProcessor installConcreteBean(Class<?> beanType) {
-        Preconditions.checkNotNull(beanType);
-        LOG.trace("installConcreteBean(beanType={})", beanType.getName());
-        // TODO assert is not an interface
+        LOG.trace("installConcreteBean(beanType={})", Preconditions.checkNotNull(beanType).getName());
+
+        if (beanType.isInterface()) {
+            throw new SeeTheEyeException.ConfigInvalidException("Can not register an interface as a concrete bean: " + beanType.getName() + "!");
+        }
+        return install(beanType);
+    }
+
+    public final BeanConfigurationPostProcessor installInstance(Object instance) {
+        LOG.trace("installInstance(instance.className={})", Preconditions.checkNotNull(instance).getClass().getName());
+
+        Bean bean = install(instance.getClass());
+        bean.setUserDefinedInstance(instance);
+        return bean;
+    }
+
+    private Bean install(Class<?> beanType) {
         Bean bean = new Bean(beanType);
         installedBeans.add(bean);
         return bean;

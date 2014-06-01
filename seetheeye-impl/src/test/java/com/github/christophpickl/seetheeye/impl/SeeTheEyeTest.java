@@ -19,7 +19,6 @@ public class SeeTheEyeTest extends SeeTheEyeTestSpec {
 //        new SeeTheEyeTest().installingAndGettingBackSingleConcreteBean();
 //    }
 
-
     @Override
     protected SeeTheEyeApi newEye(Action1<Config> action) {
         AbstractConfig config = new AbstractConfig() {};
