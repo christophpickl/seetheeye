@@ -1,6 +1,8 @@
 package com.github.christophpickl.seetheeye;
 
 import com.google.common.base.Preconditions;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +35,7 @@ public class SeeTheEye {
     }
 
     public static SeeTheEyeBuilder prepare() {
-        return new SeeTheEyeBuilder();
+        return Guice.createInjector(new SeeTheEyeGuiceModule()).getInstance(SeeTheEyeBuilder.class);
     }
 
     public <T> T get(Class<T> beanType) {

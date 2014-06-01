@@ -32,7 +32,7 @@ public class SeeTheEyeBuilder {
     public SeeTheEye build() {
         Collection<Bean> beans = new LinkedHashSet<>();
         for (Config config : configs) {
-            beans.addAll(config.getInstalledBeanTypes());
+            beans.addAll(config.getInstalledBeans());
         }
         return new SeeTheEye(beans);
     }

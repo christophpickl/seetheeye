@@ -12,7 +12,7 @@ public abstract class Config {
 
     private static final Logger LOG = LoggerFactory.getLogger(Config.class);
 
-    private Collection<Bean> installedBeanTypes = new LinkedHashSet<>();
+    private Collection<Bean> installedBeans = new LinkedHashSet<>();
 
     // TODO installForInterface(Class<?> interface).toConcreteBean(Class<?> beanType)
     // TODO installForInterface(Class<T> interface).toInstance(T bean)
@@ -22,17 +22,17 @@ public abstract class Config {
         LOG.trace("installConcreteBean(beanType={})", beanType.getName());
         // TODO assert is not an interface
         Bean bean = new Bean(beanType);
-        installedBeanTypes.add(bean);
+        installedBeans.add(bean);
         return bean;
     }
 
-    Collection<Bean> getInstalledBeanTypes() {
-        return installedBeanTypes;
+    Collection<Bean> getInstalledBeans() {
+        return installedBeans;
     }
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("installedBeanTypes", installedBeanTypes).toString();
+        return Objects.toStringHelper(this).add("installedBeans", installedBeans).toString();
     }
 
 }
