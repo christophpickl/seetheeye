@@ -42,4 +42,12 @@ public abstract class SeeTheEyeException extends RuntimeException {
         }
     }
 
+    public static class DependencyResolveException extends SeeTheEyeException {
+        public DependencyResolveException(Class<?> bean, Class<?> dependency) {
+            super(buildMessage(bean, dependency));
+        }
+        private static String buildMessage(Class<?> bean, Class<?> dependency) {
+            return "Could not instantiate bean: '" + bean.getName() + "' because of unresolvable dependency: " + dependency.getName() + "!";
+        }
+    }
 }

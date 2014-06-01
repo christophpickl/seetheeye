@@ -8,9 +8,7 @@ import com.google.inject.Guice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Main entry point.
@@ -44,24 +42,45 @@ public class SeeTheEye implements SeeTheEyeApi {
 
     public <T> T get(Class<T> beanType) {
         LOG.debug("get(beanType={})", beanType.getName());
-        Bean foundBean = findBean(beanType);
-
-        if (foundBean.getUserDefinedInstance().isPresent()) {
-            LOG.trace("Returning user defined instance: {}", foundBean.getUserDefinedInstance().get());
-            return (T) foundBean.getUserDefinedInstance().get();
+        Optional<Bean> bean = findBean(beanType);
+        if (!bean.isPresent()) {
+            throw new SeeTheEyeException.UnresolvableBeanException(beanType);
         }
-        if (foundBean.isSingletonAnnotationPresent()) {
-            return lookupSingleton(foundBean);
+        return getRecursive(bean.get());
+    }
+
+    private <T> T getRecursive(Bean bean) {
+        LOG.debug("getRecursive(bean={})", bean);
+
+        if (bean.getUserDefinedInstance().isPresent()) {
+            LOG.trace("Returning user defined instance: {}", bean.getUserDefinedInstance().get());
+            return (T) bean.getUserDefinedInstance().get();
+        }
+        if (bean.isSingletonAnnotationPresent()) {
+            return lookupSingleton(bean);
         }
 
-        return foundBean.getScope().actOn(new Scope.ScopeCallback<T>() {
+        return bean.getScope().actOn(new Scope.ScopeCallback<T>() {
             @Override public T onPrototype() {
-                Object instance = foundBean.newInstance();
+                List<Class<?>> dependencies = bean.getDependencies();
+
+                List<Object> arguments = new ArrayList<>(dependencies.size());
+                for (Class<?> dependency : dependencies) {
+                    LOG.trace("Recursively getting dependency bean of type: {}", dependency.getName());
+                    Optional<Bean> subBean = findBean(dependency);
+                    if (!subBean.isPresent()) {
+                        throw new SeeTheEyeException.DependencyResolveException(bean.getMetaClass().getClazz(), dependency);
+                    }
+                    Object foundDependency = getRecursive(subBean.get());
+                    arguments.add(foundDependency);
+                }
+
+                Object instance = bean.newInstance(arguments);
                 LOG.trace("Returning prototype scoped new instance: {}", instance);
                 return (T) instance;
             }
             @Override public T onSingelton() {
-                return lookupSingleton(foundBean);
+                return lookupSingleton(bean);
             }
         });
     }
@@ -72,21 +91,21 @@ public class SeeTheEye implements SeeTheEyeApi {
             LOG.trace("Returning cached singleton instance: {}", cachedInstance);
             return (T) cachedInstance;
         }
-        T instance = bean.newInstance();
+        T instance = bean.newInstance(Collections.emptyList()); // FIXME implement injection for singletons
         singletonsByBean.put(bean, instance);
         LOG.trace("Returning initially created singleton instance: {}", cachedInstance);
         return instance;
     }
 
-    private Bean findBean(Class<?> beanType) {
+    private Optional<Bean> findBean(Class<?> beanType) {
         Bean byConcreteType = beansByType.get(beanType);
         if (byConcreteType != null) {
-            return byConcreteType;
+            return Optional.of(byConcreteType);
         }
         if (beansByInterface.containsKey(beanType)) {
-            return beansByInterface.get(beanType);
+            return Optional.of(beansByInterface.get(beanType));
         }
-        throw new SeeTheEyeException.UnresolvableBeanException(beanType);
+        return Optional.empty();
     }
 
 }

@@ -1,12 +1,11 @@
 package com.github.christophpickl.seetheeye.impl;
 
 import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
+import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.*;
 
 public class SeeTheEyeBuilder {
 
@@ -27,6 +26,7 @@ public class SeeTheEyeBuilder {
     private void addConfig(AbstractConfig config) {
         LOG.debug("Installing config: {}", config.getClass().getName());
         configs.add(config);
+        // we could also validate here ;)
     }
 
 
@@ -36,6 +36,7 @@ public class SeeTheEyeBuilder {
         for (AbstractConfig config : configs) {
             beans.addAll(config.getInstalledBeans());
         }
+        new CycleDetector().validateNoInjectCycles(beans);
         return new SeeTheEye(beans);
     }
 
@@ -59,6 +60,38 @@ public class SeeTheEyeBuilder {
                     installedBeanTypes.add(type.getClazz());
                 }
             }
+        }
+    }
+
+    static class CycleDetector {
+
+        private Collection<Class<?>> beansInProgress; // yesss, shared state ;)
+
+        public void validateNoInjectCycles(Collection<Bean> beans) {
+            LOG.debug("Validating no cycles injected.");
+            beansInProgress = new HashSet<>();
+            for (Bean bean : beans) {
+                validateNoInjectCyclesRecursive(bean.getMetaClass());
+            }
+        }
+
+        private void validateNoInjectCyclesRecursive(MetaClass type) {
+            beansInProgress.add(type.getClazz());
+
+            List<Class<?>> params = type.getConstructorParameters();
+            LOG.trace("Validating bean '{}' with params: {}", type.getName(), Arrays.toString(params.toArray()));
+            for (Class<?> param : params) {
+                if (beansInProgress.contains(param)) {
+                    throw new SeeTheEyeException.ConfigInvalidException("Cyclic dependency found for bean of type '" + type.getName() + "'!" +
+                            " (Beans in progress: " + Arrays.toString(beansInProgress.toArray()) + ")");
+                }
+                if (param.isInterface()) {
+                    // i think this is somehow a hack. validation needs to happen somewhen later, where we have Bean access.
+                    continue;
+                }
+                validateNoInjectCyclesRecursive(new MetaClass(param));
+            }
+//                FIXME !!! beansInProgress.remove(type.getClazz());
         }
     }
 

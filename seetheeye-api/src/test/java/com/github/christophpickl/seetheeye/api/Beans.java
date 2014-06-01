@@ -52,5 +52,10 @@ public final class Beans {
     }
     public static class BeanB { }
 
+    public static class BeanCycleA { @Inject public BeanCycleA(BeanCycleB beanB) { } }
+    public static class BeanCycleB { @Inject public BeanCycleB(BeanCycleA beanA) { } }
+
+
+    public static class BeanRequiringInterface { @Inject public BeanRequiringInterface(BeanInterface subBean) { } }
 
 }

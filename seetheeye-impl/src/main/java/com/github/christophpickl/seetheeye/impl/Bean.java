@@ -6,6 +6,7 @@ import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
 import com.google.common.base.Preconditions;
 
 import javax.inject.Singleton;
+import java.util.List;
 import java.util.Optional;
 
 class Bean implements BeanConfigurationPostProcessor {
@@ -20,9 +21,12 @@ class Bean implements BeanConfigurationPostProcessor {
 
     private final boolean singletonAnnotationPresent;
 
+    private final List<Class<?>> dependencies;
+
     public Bean(Class<?> beanType) {
         this.metaClass = new MetaClass(Preconditions.checkNotNull(beanType));
         this.singletonAnnotationPresent = metaClass.hasAnnotation(Singleton.class);
+        this.dependencies = metaClass.getConstructorParameters();
     }
 
     @Override public BeanConfigurationPostProcessor inScope(Scope scope) {
@@ -52,8 +56,8 @@ class Bean implements BeanConfigurationPostProcessor {
     }
 
 
-    public <T> T newInstance() {
-        return (T) metaClass.newInstance();
+    public <T> T newInstance(List<Object> arguments) {
+        return (T) metaClass.newInstance(arguments.toArray());
     }
 
     public Scope getScope() {
@@ -71,5 +75,9 @@ class Bean implements BeanConfigurationPostProcessor {
 
     public boolean isSingletonAnnotationPresent() {
         return singletonAnnotationPresent;
+    }
+
+    public List<Class<?>> getDependencies() {
+        return dependencies;
     }
 }

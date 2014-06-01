@@ -139,11 +139,32 @@ public abstract class SeeTheEyeTestSpec {
     // -===============================================================================================================-
 
     public void inject_usualUseCaseBeanARequiredBeanB_returnsAConstructedObjectGraph() {
-        skip("work in progress");
-        newEye(config -> {
+        assertThat(newEye(config -> {
             config.installConcreteBean(Beans.BeanA.class);
             config.installConcreteBean(Beans.BeanB.class);
-        }).get(Beans.BeanA.class);
+        }).get(Beans.BeanA.class).getSubBean(), notNullValue());
+    }
+
+    public void inject_beanRequiringOtherBeanByInterface_works() {
+        assertThat(newEye(config -> {
+            config.installConcreteBean(Beans.BeanRequiringInterface.class);
+            config.installConcreteBean(Beans.BeanInterfaceImpl.class).as(Beans.BeanInterface.class);
+        }).get(Beans.BeanRequiringInterface.class), notNullValue());
+    }
+
+    @Test(expectedExceptions = SeeTheEyeException.DependencyResolveException.class)
+    public void inject_usingInterfaceAsADependencyButNotRegistered_throwsException() {
+        newEye(config -> config.installConcreteBean(Beans.BeanRequiringInterface.class)).get(Beans.BeanRequiringInterface.class);
+        // NO! seetheeye does not support bean validation on context creation via build()
+//        newEye(config -> config.installConcreteBean(Beans.BeanRequiringInterface.class));
+    }
+
+    @Test(expectedExceptions = SeeTheEyeException.ConfigInvalidException.class)
+    public void inject_twoBeansReferencingEachOther_throwExceptionBecauseOfCycle() {
+        newEye(config -> {
+            config.installConcreteBean(Beans.BeanCycleA.class);
+            config.installConcreteBean(Beans.BeanCycleB.class);
+        });
     }
 
 

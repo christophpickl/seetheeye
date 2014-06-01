@@ -11,6 +11,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.List;
 
 public class MetaClass<T> {
 
@@ -19,15 +20,18 @@ public class MetaClass<T> {
     private final Class<T> clazz;
 
     private final Constructor<T> constructor;
+    private final List<Class<?>> constructorParameters;
 
     public MetaClass(Class<T> clazz) {
         this.clazz = Preconditions.checkNotNull(clazz);
-        this.constructor = findCtor(clazz);
+        this.constructor = findSuitableConstructor(clazz);
+        this.constructorParameters = Arrays.asList(constructor.getParameterTypes());
     }
 
-    public T newInstance() {
+    public T newInstance(Object[] arguments) {
+        LOG.trace("newInstance(arguments={})", Arrays.toString(arguments));
         try {
-            return constructor.newInstance();
+            return constructor.newInstance(arguments);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new SeeTheEyeException.BeanInstantiationException(clazz, e);
         }
@@ -53,7 +57,7 @@ public class MetaClass<T> {
         return clazz;
     }
 
-    private static <T> Constructor<T> findCtor(Class<T> type) {
+    private static <T> Constructor<T> findSuitableConstructor(Class<T> type) {
         Constructor[] ctors = type.getConstructors();
         if (ctors.length == 1 && Modifier.isPublic(ctors[0].getModifiers()) &&
                 ctors[0].getParameters().length == 0) {
@@ -62,6 +66,7 @@ public class MetaClass<T> {
         }
 
         for (Constructor ctor : type.getConstructors()) {
+            // TODO is MetaClass generic or should it already have business logic included?!
             if (ctor.isAnnotationPresent(Inject.class)) {
                 return ctor;
             }
@@ -72,5 +77,9 @@ public class MetaClass<T> {
 
     public boolean hasAnnotation(Class<? extends Annotation> annotation) {
         return clazz.isAnnotationPresent(annotation);
+    }
+
+    public List<Class<?>> getConstructorParameters() {
+        return constructorParameters;
     }
 }
