@@ -1,4 +1,4 @@
-package com.github.christophpickl.seetheeye;
+package com.github.christophpickl.seetheeye.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

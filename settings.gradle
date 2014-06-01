@@ -1,0 +1,4 @@
+
+println 'This is executed during the initialization phase.'
+
+include 'com.github.christophpickl.seetheeye.impl-api', 'com.github.christophpickl.seetheeye.impl-impl'

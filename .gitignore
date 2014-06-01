@@ -8,4 +8,9 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-seetheeye.iml
+*.iml
+.gradle/
+.DS_Store
+
+# TODO is there a better way to do it?!
+seetheeye-api/build/

@@ -1,7 +1,5 @@
-package com.github.christophpickl.seetheeye;
+package com.github.christophpickl.seetheeye.impl;
 
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 

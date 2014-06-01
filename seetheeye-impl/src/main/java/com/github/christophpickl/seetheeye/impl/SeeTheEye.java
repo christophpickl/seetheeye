@@ -1,8 +1,7 @@
-package com.github.christophpickl.seetheeye;
+package com.github.christophpickl.seetheeye.impl;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

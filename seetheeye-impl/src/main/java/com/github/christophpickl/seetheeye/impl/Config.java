@@ -1,4 +1,4 @@
-package com.github.christophpickl.seetheeye;
+package com.github.christophpickl.seetheeye.impl;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;

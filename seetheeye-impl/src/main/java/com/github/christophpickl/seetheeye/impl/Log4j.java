@@ -1,4 +1,4 @@
-package com.github.christophpickl.seetheeye;
+package com.github.christophpickl.seetheeye.impl;
 
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
