@@ -1,6 +1,6 @@
 package com.github.christophpickl.seetheeye.api;
 
-public class SeeTheEyeException extends RuntimeException {
+public abstract class SeeTheEyeException extends RuntimeException {
 
     public SeeTheEyeException(String message) {
         super(message);
@@ -36,5 +36,10 @@ public class SeeTheEyeException extends RuntimeException {
     }
 
 
+    public static class InvalidBeanException extends SeeTheEyeException {
+        public InvalidBeanException(String message) {
+            super(message);
+        }
+    }
 
 }
