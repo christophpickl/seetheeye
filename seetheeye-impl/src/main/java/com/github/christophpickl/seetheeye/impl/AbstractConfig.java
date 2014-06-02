@@ -8,6 +8,7 @@ import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Provider;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
@@ -17,8 +18,7 @@ public abstract class AbstractConfig implements Config {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractConfig.class);
 
     private Collection<Bean> installedBeans = new LinkedHashSet<>();
-
-    private boolean yetConfigured;
+    private Collection<Class<? extends Provider<?>>> installedProviders = new LinkedHashSet<>();
 
     // installForInterface(Class<?> interface).toConcreteBean(Class<?> beanType)
     // installForInterface(Class<T> interface).toInstance(T bean)
@@ -32,10 +32,6 @@ public abstract class AbstractConfig implements Config {
         return install(beanType);
     }
 
-    protected void configure() {
-        // overridable by subclass
-    }
-
     public final BeanConfigurationPostProcessor installInstance(Object instance) {
         LOG.trace("installInstance(instance.className={})", Preconditions.checkNotNull(instance).getClass().getName());
 
@@ -44,23 +40,38 @@ public abstract class AbstractConfig implements Config {
         return bean;
     }
 
+    @Override
+    public final void installProvider(Class<? extends Provider<?>> providerType) {
+        LOG.trace("installProvider(providerType={})", providerType.getName());
+
+        installedProviders.add(providerType);
+    }
+
+    protected void configure() {
+        // overridable by subclass
+    }
+
+    /** Invoked by internal framework. */
+    final Collection<Bean> getInstalledBeans() {
+        return installedBeans;
+    }
+
+    final Collection<Class<? extends Provider<?>>> getInstalledProviders() {
+        return installedProviders;
+    }
+
     private Bean install(Class<?> beanType) {
         Bean bean = new Bean(beanType);
         installedBeans.add(bean);
         return bean;
     }
 
-    Collection<Bean> getInstalledBeans() {
-        if (!yetConfigured) {
-            configure(); // maybe subclass is providing something :)
-            yetConfigured = true;
-        }
-        return installedBeans;
-    }
-
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("installedBeans", installedBeans).toString();
+        return Objects.toStringHelper(this)
+            .add("installedBeans", installedBeans)
+            .add("installedProviders", installedProviders)
+            .toString();
     }
 
 }

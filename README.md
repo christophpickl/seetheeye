@@ -7,4 +7,7 @@ java implementation of CDI (JSR 299), contexts and dependency injection, just fo
 FEATUREs
 ========
 
-* if only one constructor found, use this one, regardless @Inject presence
+* provider
+* install sub configs
+* event bus
+(* AOP/interceptor)

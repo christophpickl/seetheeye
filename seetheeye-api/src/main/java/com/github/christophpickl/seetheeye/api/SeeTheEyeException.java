@@ -41,6 +41,12 @@ public abstract class SeeTheEyeException extends RuntimeException {
             super(message);
         }
     }
+    public static class InvalidProviderException extends SeeTheEyeException {
+        public InvalidProviderException(String message, Exception cause) {
+            super(message, cause);
+        }
+    }
+
 
     public static class DependencyResolveException extends SeeTheEyeException {
         public DependencyResolveException(Class<?> bean, Class<?> dependency) {

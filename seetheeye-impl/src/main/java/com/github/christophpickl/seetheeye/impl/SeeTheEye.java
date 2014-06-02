@@ -7,7 +7,9 @@ import com.google.common.base.Preconditions;
 import com.google.inject.Guice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
+import javax.inject.Provider;
 import java.util.*;
 
 /**
@@ -18,14 +20,18 @@ public class SeeTheEye implements SeeTheEyeApi {
     private static final Logger LOG = LoggerFactory.getLogger(SeeTheEye.class);
 
     private Collection<Bean> beans;
+    private Collection<Class<? extends Provider<?>>> providers;
 
     private final Map<Class<?>, Bean> beansByType = new HashMap<>();
     private final Map<Class<?>, Bean> beansByInterface = new HashMap<>();
     private final Map<Bean, Object> singletonsByBean = new HashMap<>();
+    // TODO refactor! introduce own providerRepository datastructure. contains singleton instances of each provider (doesnt need to be recreated each time)
+    private final Map<Class<?>, Class<? extends Provider<?>>> providersByBeanType = new HashMap<>();
 
-    SeeTheEye(Collection<Bean> beans) {
+    SeeTheEye(Collection<Bean> beans, Collection<Class<? extends Provider<?>>> providers) {
         this.beans = Preconditions.checkNotNull(beans);
-        LOG.trace("new (beans=" + Arrays.toString(beans.toArray()) + ")");
+        this.providers = Preconditions.checkNotNull(providers);
+        LOG.trace("new (beans={}, providers={})", Arrays.toString(beans.toArray()), Arrays.toString(providers.toArray()));
         for (Bean bean : beans) {
             if (bean.getBeanInterface().isPresent()) {
                 LOG.trace("Registering bean of type '{}' to interface type '{}'.",
@@ -35,6 +41,17 @@ public class SeeTheEye implements SeeTheEyeApi {
                 beansByType.put(bean.getMetaClass().getClazz(), bean);
             }
         }
+
+        for (Class<? extends Provider<?>> provider : providers) {
+            Class<?> providingBeanType = extractProviderTypeParameter(provider);
+            providersByBeanType.put(providingBeanType, provider);
+        }
+    }
+
+    // also needs to be refactored
+    static Class<?> extractProviderTypeParameter(Class<? extends Provider<?>> provider) {
+        ParameterizedTypeImpl providerInterfaceGeneric = (ParameterizedTypeImpl) provider.getGenericInterfaces()[0];
+        return (Class<?>) providerInterfaceGeneric.getActualTypeArguments()[0];
     }
 
     public static SeeTheEyeBuilder prepare() {
@@ -44,11 +61,27 @@ public class SeeTheEye implements SeeTheEyeApi {
 
     public <T> T get(Class<T> beanType) {
         LOG.debug("get(beanType={})", beanType.getName());
+        if (Provider.class.isAssignableFrom(beanType)) {
+            return (T) newProvider((Class<? extends Provider<Object>>)beanType);
+        }
+        if (providersByBeanType.containsKey(beanType)) {
+            Class<? extends Provider<T>> providerType = (Class<? extends Provider<T>>) providersByBeanType.get(beanType);
+            return newProvider(providerType).get();
+        }
+
         Optional<Bean> bean = findBean(beanType);
         if (!bean.isPresent()) {
             throw new SeeTheEyeException.UnresolvableBeanException(beanType);
         }
         return getRecursive(bean.get());
+    }
+
+    private <T> Provider<T> newProvider(Class<? extends Provider<T>> providerType) {
+        try {
+            return providerType.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new SeeTheEyeException.InvalidProviderException("Failed to instantiate provider type: " + providerType.getName(), e);
+        }
     }
 
     private <T> T getRecursive(Bean bean) {

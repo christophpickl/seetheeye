@@ -206,6 +206,28 @@ public abstract class SeeTheEyeTestSpec {
         assertThat(Beans.ConstructorCountingWithSingletonAnnotation.constructorCalled, equalTo(1));
     }
 
+
+    // PROVIDER
+    // -===============================================================================================================-
+
+    public void installProvider_forBeanTypeXAndRequestForBeanX_returnInstanceProvidedByCustomProvider() {
+        assertThat(newEye(config -> config.installProvider(Beans.EmptyProvider.class)).get(Beans.Empty.class),
+                sameInstance(Beans.EmptyProvider.PROVIDING_INSTANCE));
+    }
+
+    public void installProvider_requestInstanceOfGivenProvider_returnProviderAsExpected() {
+        assertThat(newEye(config -> config.installProvider(Beans.EmptyProvider.class)).get(Beans.EmptyProvider.class),
+                notNullValue());
+    }
+
+    @Test(expectedExceptions = SeeTheEyeException.ConfigInvalidException.class)
+    public void installProvider_sameTypeAsBeanAndAsProvider_throwException() {
+        newEye(config -> {
+            config.installConcreteBean(Beans.Empty.class);
+            config.installProvider(Beans.EmptyProvider.class);
+        }).get(Beans.Empty.class);
+    }
+
     // -===============================================================================================================-
     // -===============================================================================================================-
 

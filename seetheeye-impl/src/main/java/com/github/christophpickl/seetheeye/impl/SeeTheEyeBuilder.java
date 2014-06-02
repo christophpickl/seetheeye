@@ -1,10 +1,11 @@
 package com.github.christophpickl.seetheeye.impl;
 
 import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
-import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
+import javax.inject.Provider;
 import java.util.*;
 
 public class SeeTheEyeBuilder {
@@ -26,21 +27,47 @@ public class SeeTheEyeBuilder {
     private void addConfig(AbstractConfig config) {
         LOG.debug("Installing config: {}", config.getClass().getName());
         configs.add(config);
-        // we could also validate here ;)
+        // we could also preValidate here ;)
     }
 
 
     public SeeTheEye build() {
-        validate();
+        preValidate();
         Collection<Bean> beans = new LinkedHashSet<>();
+        Collection<Class<? extends Provider<?>>> providers = new LinkedHashSet<>();
         for (AbstractConfig config : configs) {
+            config.configure();
             beans.addAll(config.getInstalledBeans());
+            providers.addAll(config.getInstalledProviders());
         }
-        new CycleDetector().validateNoInjectCycles(beans);
-        return new SeeTheEye(beans);
+        postValidate(beans, providers);
+        return new SeeTheEye(beans, providers);
     }
 
-    private void validate() {
+    private void postValidate(Collection<Bean> beans, Collection<Class<? extends Provider<?>>> providers) {
+        new CycleDetector().validateNoInjectCycles(beans);
+
+        Map<Class<?>, Bean> beansByType = new HashMap<>();
+        for (Bean bean : beans) {
+            Class<?> beanType;
+            if (bean.getBeanInterface().isPresent()) {
+                beanType = bean.getBeanInterface().get();
+            } else {
+                beanType = bean.getBeanType();
+            }
+            beansByType.put(beanType, bean);
+        }
+
+        for (Class<? extends Provider<?>> provider : providers) {
+            Class<?> providingBeanType = SeeTheEye.extractProviderTypeParameter(provider);
+            if (beansByType.containsKey(providingBeanType)) {
+                throw new SeeTheEyeException.ConfigInvalidException("Configured both, a provider and a bean for type: " + providingBeanType.getName());
+            }
+        }
+    }
+
+
+    private void preValidate() {
         Collection<Class<?>> installedBeanTypes = new HashSet<>();
         Collection<Class<?>> installedBeanInterfaces = new HashSet<>();
         for (AbstractConfig config : configs) {

@@ -11,6 +11,8 @@ import java.util.Optional;
 
 class Bean implements BeanConfigurationPostProcessor {
 
+    private final Class<?> beanType;
+
     private final MetaClass metaClass;
 
     private Scope scope = Scope.PROTOTYPE;
@@ -24,6 +26,7 @@ class Bean implements BeanConfigurationPostProcessor {
     private final List<Class<?>> dependencies;
 
     public Bean(Class<?> beanType) {
+        this.beanType = beanType;
         this.metaClass = new MetaClass(Preconditions.checkNotNull(beanType));
         this.singletonAnnotationPresent = metaClass.hasAnnotation(Singleton.class);
         this.dependencies = metaClass.getConstructorParameters();
@@ -79,5 +82,9 @@ class Bean implements BeanConfigurationPostProcessor {
 
     public List<Class<?>> getDependencies() {
         return dependencies;
+    }
+
+    public Class<?> getBeanType() {
+        return beanType;
     }
 }

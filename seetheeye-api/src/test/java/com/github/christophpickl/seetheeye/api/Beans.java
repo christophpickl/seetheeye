@@ -1,6 +1,7 @@
 package com.github.christophpickl.seetheeye.api;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 
 public final class Beans {
@@ -65,7 +66,16 @@ public final class Beans {
     public static class BeanCycleA { @Inject public BeanCycleA(BeanCycleB beanB) { } }
     public static class BeanCycleB { @Inject public BeanCycleB(BeanCycleA beanA) { } }
 
-
     public static class BeanRequiringInterface { @Inject public BeanRequiringInterface(BeanInterface subBean) { } }
+
+
+    // PROVIDER
+    // -===============================================================================================================-
+
+    public static class EmptyProvider implements Provider<Empty> {
+        public static final Empty PROVIDING_INSTANCE = new Empty();
+        @Override public Empty get() { return PROVIDING_INSTANCE; }
+    }
+
 
 }
