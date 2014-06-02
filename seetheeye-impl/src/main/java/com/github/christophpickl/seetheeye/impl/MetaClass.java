@@ -10,6 +10,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,10 +31,14 @@ public class MetaClass<T> {
 
     public T newInstance(Object[] arguments) {
         LOG.trace("newInstance(arguments={})", Arrays.toString(arguments));
+        boolean wasAccessible = constructor.isAccessible();
+        constructor.setAccessible(true);
         try {
             return constructor.newInstance(arguments);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new SeeTheEyeException.BeanInstantiationException(clazz, e);
+        } finally {
+            constructor.setAccessible(wasAccessible);
         }
     }
 
@@ -57,11 +62,13 @@ public class MetaClass<T> {
         return clazz;
     }
 
+
+
     private static <T> Constructor<T> findSuitableConstructor(Class<T> type) {
         Constructor[] ctors = type.getDeclaredConstructors();
-        if (ctors.length == 1 && Modifier.isPublic(ctors[0].getModifiers()) &&
-                ctors[0].getParameters().length == 0) {
-            LOG.trace("Found default ctor for type: {}", type.getName());
+        if (ctors.length == 1) {
+            LOG.trace("Found only single existing constructor and using it for '{}' with parameters: {}",
+                type.getName(), paramsToString(ctors[0].getParameters()));
             return ctors[0];
         }
 
@@ -73,6 +80,14 @@ public class MetaClass<T> {
         }
         throw new SeeTheEyeException.InvalidBeanException("Invalid bean: " + type.getName() + "! Not found @Inject on any constructor, " +
                 "nor is the default constructor existing!");
+    }
+
+    private static String paramsToString(Parameter[] parameters) {
+        StringBuilder string = new StringBuilder(", ");
+        for (Parameter param : parameters) {
+            string.append(param.getType().getName()).append(" ").append(param.getName()).append(", ");
+        }
+        return string.substring(2);
     }
 
     public boolean hasAnnotation(Class<? extends Annotation> annotation) {

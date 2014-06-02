@@ -38,7 +38,8 @@ public class SeeTheEye implements SeeTheEyeApi {
     }
 
     public static SeeTheEyeBuilder prepare() {
-        return Guice.createInjector(new SeeTheEyeGuiceModule()).getInstance(SeeTheEyeBuilder.class);
+//        TODO enable guice: return Guice.createInjector(new SeeTheEyeGuiceModule()).getInstance(SeeTheEyeBuilder.class);
+        return new SeeTheEyeBuilder();
     }
 
     public <T> T get(Class<T> beanType) {

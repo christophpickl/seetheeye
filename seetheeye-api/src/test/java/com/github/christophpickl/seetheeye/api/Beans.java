@@ -11,7 +11,10 @@ public final class Beans {
     // -===============================================================================================================-
 
     public static class Empty { }
-    static class PackagePrivate { }
+    static class PackagePrivateClass { }
+    public static class PackagePrivateConstructor {
+        PackagePrivateConstructor() {}
+    }
 
     public interface BeanInterface { }
     public interface BeanInterfaceSub extends BeanInterface { }
@@ -41,6 +44,12 @@ public final class Beans {
 
     // @INJECT
     // -===============================================================================================================-
+
+    public static class SingleConstructorWithoutInject {
+        private final Empty subBean;
+        public SingleConstructorWithoutInject(Empty subBean) { this.subBean = subBean; }
+        public Empty getSubBean() { return subBean; }
+    }
 
     public static class BeanA {
         private final BeanB subBean;

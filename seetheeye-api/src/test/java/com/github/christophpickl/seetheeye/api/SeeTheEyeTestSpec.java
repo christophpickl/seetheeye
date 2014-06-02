@@ -23,9 +23,12 @@ public abstract class SeeTheEyeTestSpec {
         newEye(config -> {}).get(Beans.Empty.class);
     }
 
-    // FIXME implement me!
     public void installConcreteBean_withPackagePrivateVisibility_breakUpViaReflection() {
-        newEye(config -> config.installConcreteBean(Beans.PackagePrivate.class)).get(Beans.PackagePrivate.class);
+        newEye(config -> config.installConcreteBean(Beans.PackagePrivateClass.class)).get(Beans.PackagePrivateClass.class);
+    }
+
+    public void installConcreteBean_withPackagePrivateVisibleConstructor_breakUpViaReflection() {
+        newEye(config -> config.installConcreteBean(Beans.PackagePrivateConstructor.class)).get(Beans.PackagePrivateConstructor.class);
     }
 
 
@@ -36,7 +39,6 @@ public abstract class SeeTheEyeTestSpec {
         assertThat(newEye(config -> config.installConcreteBean(Beans.Empty.class)).get(Beans.Empty.class),
             instanceOf(Beans.Empty.class));
     }
-
 
     @Test(expectedExceptions = SeeTheEyeException.ConfigInvalidException.class)
     public void installConcreteBean_passingAnInterfaceTypethrowException() {
@@ -155,6 +157,13 @@ public abstract class SeeTheEyeTestSpec {
             config.installConcreteBean(Beans.BeanRequiringInterface.class);
             config.installConcreteBean(Beans.BeanInterfaceImpl.class).as(Beans.BeanInterface.class);
         }).get(Beans.BeanRequiringInterface.class), notNullValue());
+    }
+
+    public void inject_beanWithSingleConstructorWithParamsWithoutInjectAnnotation_workAsOnlyOneCtorExisting() {
+        assertThat(newEye(config -> {
+            config.installConcreteBean(Beans.SingleConstructorWithoutInject.class);
+            config.installConcreteBean(Beans.Empty.class);
+        }).get(Beans.SingleConstructorWithoutInject.class).getSubBean(), notNullValue());
     }
 
     @Test(expectedExceptions = SeeTheEyeException.DependencyResolveException.class)
