@@ -77,6 +77,7 @@ public class SeeTheEye implements SeeTheEyeApi {
     }
 
     private <T> Provider<T> newProvider(Class<? extends Provider<T>> providerType) {
+        // FIXME break up ctor just like did already
         try {
             return providerType.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {

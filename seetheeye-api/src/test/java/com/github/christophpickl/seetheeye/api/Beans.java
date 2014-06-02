@@ -12,10 +12,7 @@ public final class Beans {
     // -===============================================================================================================-
 
     public static class Empty { }
-    static class PackagePrivateClass { }
-    public static class PackagePrivateConstructor {
-        PackagePrivateConstructor() {}
-    }
+
 
     public interface BeanInterface { }
     public interface BeanInterfaceSub extends BeanInterface { }
@@ -26,22 +23,6 @@ public final class Beans {
     public static class BeanInterfaceImpl2 implements BeanInterface { }
     public static class BeanMultiInterfaceImpl implements BeanInterface, BeanInterface2 { }
 
-    // SCOPE
-    // -===============================================================================================================-
-
-    public static class ConstructorCounting {
-        public static int constructorCalled; // watch out to reset the variable before/after running test against this
-        public ConstructorCounting() {
-            constructorCalled++;
-        }
-    }
-
-    @Singleton public static class ConstructorCountingWithSingletonAnnotation {
-        public static int constructorCalled; // watch out to reset the variable before/after running test against this
-        public ConstructorCountingWithSingletonAnnotation() {
-            constructorCalled++;
-        }
-    }
 
     // @INJECT
     // -===============================================================================================================-
@@ -68,14 +49,6 @@ public final class Beans {
 
     public static class BeanRequiringInterface { @Inject public BeanRequiringInterface(BeanInterface subBean) { } }
 
-
-    // PROVIDER
-    // -===============================================================================================================-
-
-    public static class EmptyProvider implements Provider<Empty> {
-        public static final Empty PROVIDING_INSTANCE = new Empty();
-        @Override public Empty get() { return PROVIDING_INSTANCE; }
-    }
 
 
 }

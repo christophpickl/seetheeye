@@ -1,4 +1,7 @@
 package com.github.christophpickl.seetheeye.api.integration;
 
-public class Beans {
+class Beans {
+
+    static class Empty { }
+
 }
