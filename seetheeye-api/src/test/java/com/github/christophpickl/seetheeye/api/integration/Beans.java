@@ -4,4 +4,6 @@ class Beans {
 
     static class Empty { }
 
+    static class Empty2 { }
+
 }

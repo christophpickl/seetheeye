@@ -60,7 +60,7 @@ class Bean implements BeanConfigurationPostProcessor {
 
 
     public <T> T newInstance(List<Object> arguments) {
-        return (T) metaClass.newInstance(arguments.toArray());
+        return (T) Reflections.instantiate(metaClass.getConstructor(), arguments.toArray());
     }
 
     public Scope getScope() {

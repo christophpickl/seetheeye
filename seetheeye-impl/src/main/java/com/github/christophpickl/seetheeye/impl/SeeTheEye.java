@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import javax.inject.Provider;
+import java.lang.reflect.Constructor;
 import java.util.*;
 
 /**
@@ -62,11 +63,17 @@ public class SeeTheEye implements SeeTheEyeApi {
     public <T> T get(Class<T> beanType) {
         LOG.debug("get(beanType={})", beanType.getName());
         if (Provider.class.isAssignableFrom(beanType)) {
-            return (T) newProvider((Class<? extends Provider<Object>>)beanType);
+            Class<? extends Provider<Object>> providerType = (Class<? extends Provider<Object>>)beanType;
+            // TODO figure out proper constructor for provider
+            LOG.trace("Returning provider: {}", providerType.getName());
+            return (T) Reflections.instantiate(providerType.getDeclaredConstructors()[0]);
         }
         if (providersByBeanType.containsKey(beanType)) {
             Class<? extends Provider<T>> providerType = (Class<? extends Provider<T>>) providersByBeanType.get(beanType);
-            return newProvider(providerType).get();
+            // TODO figure out proper constructor for provider
+            LOG.trace("Returning provider instance by: {}", providerType.getName());
+            Provider<T> provider = (Provider<T>) Reflections.instantiate(providerType.getDeclaredConstructors()[0]);
+            return provider.get();
         }
 
         Optional<Bean> bean = findBean(beanType);
@@ -74,15 +81,6 @@ public class SeeTheEye implements SeeTheEyeApi {
             throw new SeeTheEyeException.UnresolvableBeanException(beanType);
         }
         return getRecursive(bean.get());
-    }
-
-    private <T> Provider<T> newProvider(Class<? extends Provider<T>> providerType) {
-        // FIXME break up ctor just like did already
-        try {
-            return providerType.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new SeeTheEyeException.InvalidProviderException("Failed to instantiate provider type: " + providerType.getName(), e);
-        }
     }
 
     private <T> T getRecursive(Bean bean) {

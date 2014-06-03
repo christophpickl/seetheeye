@@ -29,19 +29,6 @@ public class MetaClass<T> {
         this.constructorParameters = Arrays.asList(constructor.getParameterTypes());
     }
 
-    public T newInstance(Object[] arguments) {
-        LOG.trace("newInstance(arguments={})", Arrays.toString(arguments));
-        boolean wasAccessible = constructor.isAccessible();
-        constructor.setAccessible(true);
-        try {
-            return constructor.newInstance(arguments);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new SeeTheEyeException.BeanInstantiationException(clazz, e);
-        } finally {
-            constructor.setAccessible(wasAccessible);
-        }
-    }
-
     public boolean isImplementing(Class<?> beanInterface) {
         for (Class<?> clazzInterface : clazz.getInterfaces()) {
             if (clazzInterface == beanInterface) {
@@ -96,5 +83,9 @@ public class MetaClass<T> {
 
     public List<Class<?>> getConstructorParameters() {
         return constructorParameters;
+    }
+
+    public Constructor<T> getConstructor() {
+        return constructor;
     }
 }
