@@ -53,6 +53,4 @@ public abstract class ProviderTestSpec extends BaseTest {
         }).get(Beans.Empty.class);
     }
 
-    // register two provider
-
 }

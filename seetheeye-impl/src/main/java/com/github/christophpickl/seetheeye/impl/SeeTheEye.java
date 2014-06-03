@@ -9,7 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
+import javax.enterprise.event.Event;
+import javax.enterprise.util.TypeLiteral;
 import javax.inject.Provider;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
@@ -101,6 +104,10 @@ public class SeeTheEye implements SeeTheEyeApi {
                 List<Object> arguments = new ArrayList<>(dependencies.size());
                 for (Class<?> dependency : dependencies) {
                     LOG.trace("Recursively getting dependency bean of type: {}", dependency.getName());
+                    if (Event.class == dependency) {
+                        arguments.add(new MyEvent()); // no generics ;)
+                        continue;
+                    }
                     Optional<Bean> subBean = findBean(dependency);
                     if (!subBean.isPresent()) {
                         throw new SeeTheEyeException.DependencyResolveException(bean.getMetaClass().getClazz(), dependency);
@@ -117,6 +124,30 @@ public class SeeTheEye implements SeeTheEyeApi {
                 return lookupSingleton(bean);
             }
         });
+    }
+
+    static class MyEvent<T> implements Event<T> {
+
+        @Override
+        public void fire(T t) {
+            System.out.println("fireee: " + t);
+            // report back to see-the-eye, which holds a list of beans observing that event
+        }
+
+        @Override
+        public Event<T> select(Annotation... annotations) {
+            throw new UnsupportedOperationException("Not implemented!");
+        }
+
+        @Override
+        public <U extends T> Event<U> select(Class<U> uClass, Annotation... annotations) {
+            throw new UnsupportedOperationException("Not implemented!");
+        }
+
+        @Override
+        public <U extends T> Event<U> select(TypeLiteral<U> uTypeLiteral, Annotation... annotations) {
+            throw new UnsupportedOperationException("Not implemented!");
+        }
     }
 
     private <T> T lookupSingleton(Bean bean) {

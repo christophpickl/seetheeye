@@ -7,11 +7,13 @@ import com.github.christophpickl.seetheeye.impl.AbstractConfig;
 import com.github.christophpickl.seetheeye.impl.Log4j;
 import com.github.christophpickl.seetheeye.impl.SeeTheEye;
 
-class SeeTheEyeFactory {
+final class SeeTheEyeFactory {
 
     static {
         Log4j.init();
     }
+
+    private SeeTheEyeFactory() {}
 
     static SeeTheEyeApi newEye(Action1<Config> action) {
         AbstractConfig config = new AbstractConfig() {};
