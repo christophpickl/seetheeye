@@ -4,12 +4,18 @@ import com.github.christophpickl.seetheeye.api.BeanConfigurationPostProcessor;
 import com.github.christophpickl.seetheeye.api.Scope;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 
 class Bean implements BeanConfigurationPostProcessor {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Bean.class);
 
     private final Class<?> beanType;
 
@@ -24,6 +30,8 @@ class Bean implements BeanConfigurationPostProcessor {
     private final boolean singletonAnnotationPresent;
 
     private final List<Class<?>> dependencies;
+
+    private final Collection<EventObserver> observers = new LinkedHashSet<>();
 
     public Bean(Class<?> beanType) {
         this.beanType = beanType;
@@ -86,5 +94,14 @@ class Bean implements BeanConfigurationPostProcessor {
 
     public Class<?> getBeanType() {
         return beanType;
+    }
+
+    public void addObserver(EventObserver observer) {
+        LOG.debug("Adding observer {} for this bean {}", observer, this);
+        observers.add(observer);
+    }
+
+    public Collection<EventObserver> getObservers () {
+        return observers;
     }
 }

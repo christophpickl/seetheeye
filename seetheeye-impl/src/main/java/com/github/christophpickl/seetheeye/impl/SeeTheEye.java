@@ -4,33 +4,45 @@ import com.github.christophpickl.seetheeye.api.Scope;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeApi;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
 import com.google.common.base.Preconditions;
-import com.google.inject.Guice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import javax.enterprise.event.Event;
-import javax.enterprise.util.TypeLiteral;
 import javax.inject.Provider;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.util.*;
 
 /**
  * Main entry point.
  */
-public class SeeTheEye implements SeeTheEyeApi {
+public class SeeTheEye implements SeeTheEyeApi, ObserverRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(SeeTheEye.class);
 
-    private Collection<Bean> beans;
-    private Collection<Class<? extends Provider<?>>> providers;
+    private final Collection<Bean> beans;
+    private final Collection<Class<? extends Provider<?>>> providers;
 
     private final Map<Class<?>, Bean> beansByType = new HashMap<>();
     private final Map<Class<?>, Bean> beansByInterface = new HashMap<>();
     private final Map<Bean, Object> singletonsByBean = new HashMap<>();
     // TODO refactor! introduce own providerRepository datastructure. contains singleton instances of each provider (doesnt need to be recreated each time)
     private final Map<Class<?>, Class<? extends Provider<?>>> providersByBeanType = new HashMap<>();
+    private final Map<Class<?>, Collection<EventObserverInstance>> observerInstancesByEventType = new HashMap<>();
+
+    static class EventObserverInstance {
+
+        private final EventObserver observer;
+        private final Object instance;
+
+        public EventObserverInstance(EventObserver observer, Object instance) {
+            this.observer = observer;
+            this.instance = instance;
+        }
+
+        public <T> void dispatch(T value) {
+            observer.invokeMethod(instance, value);
+        }
+    }
 
     SeeTheEye(Collection<Bean> beans, Collection<Class<? extends Provider<?>>> providers) {
         this.beans = Preconditions.checkNotNull(beans);
@@ -45,7 +57,6 @@ public class SeeTheEye implements SeeTheEyeApi {
                 beansByType.put(bean.getMetaClass().getClazz(), bean);
             }
         }
-
         for (Class<? extends Provider<?>> provider : providers) {
             Class<?> providingBeanType = extractProviderTypeParameter(provider);
             providersByBeanType.put(providingBeanType, provider);
@@ -99,26 +110,7 @@ public class SeeTheEye implements SeeTheEyeApi {
 
         return bean.getScope().actOn(new Scope.ScopeCallback<T>() {
             @Override public T onPrototype() {
-                List<Class<?>> dependencies = bean.getDependencies();
-
-                List<Object> arguments = new ArrayList<>(dependencies.size());
-                for (Class<?> dependency : dependencies) {
-                    LOG.trace("Recursively getting dependency bean of type: {}", dependency.getName());
-                    if (Event.class == dependency) {
-                        arguments.add(new MyEvent()); // no generics ;)
-                        continue;
-                    }
-                    Optional<Bean> subBean = findBean(dependency);
-                    if (!subBean.isPresent()) {
-                        throw new SeeTheEyeException.DependencyResolveException(bean.getMetaClass().getClazz(), dependency);
-                    }
-                    Object foundDependency = getRecursive(subBean.get());
-                    arguments.add(foundDependency);
-                }
-
-                Object instance = bean.newInstance(arguments);
-                LOG.trace("Returning prototype scoped new instance: {}", instance);
-                return (T) instance;
+                return lookupPrototype(bean);
             }
             @Override public T onSingelton() {
                 return lookupSingleton(bean);
@@ -126,27 +118,51 @@ public class SeeTheEye implements SeeTheEyeApi {
         });
     }
 
-    static class MyEvent<T> implements Event<T> {
-
-        @Override
-        public void fire(T t) {
-            System.out.println("fireee: " + t);
-            // report back to see-the-eye, which holds a list of beans observing that event
+    private List<Object> createArguments(Bean bean) {
+        List<Class<?>> dependencies = bean.getDependencies();
+        List<Object> arguments = new ArrayList<>(dependencies.size());
+        for (Class<?> dependency : dependencies) {
+            LOG.trace("Recursively getting dependency bean of type: {}", dependency.getName());
+            if (Event.class == dependency) {
+                // FIXME hardcoded String observer
+                Class<?> eventType = String.class;
+                LOG.trace("Adding event dispatcher for dependency of type {} for bean: {}",
+                        dependency.getName(), bean);
+                arguments.add(new EventDispatcher(SeeTheEye.this, eventType)); // TODO no generics?!
+                // FIXME when to let loose of this (weak) reference??
+                continue;
+            }
+            Optional<Bean> subBean = findBean(dependency);
+            if (!subBean.isPresent()) {
+                throw new SeeTheEyeException.DependencyResolveException(bean.getMetaClass().getClazz(), dependency);
+            }
+            Object foundDependency = getRecursive(subBean.get());
+            arguments.add(foundDependency);
         }
+        return arguments;
+    }
 
-        @Override
-        public Event<T> select(Annotation... annotations) {
-            throw new UnsupportedOperationException("Not implemented!");
-        }
+    private <T> T lookupPrototype(Bean bean) {
+        T instance = instantiateBean(bean);
+        LOG.trace("Returning prototype scoped new instance: {}", instance);
+        return instance;
+    }
 
-        @Override
-        public <U extends T> Event<U> select(Class<U> uClass, Annotation... annotations) {
-            throw new UnsupportedOperationException("Not implemented!");
-        }
+    private <T> T instantiateBean(Bean bean) {
+        List<Object> arguments = createArguments(bean);
+        Object instance = bean.newInstance(arguments);
+        registerObserverForPrototype(bean, instance);
+        return (T) instance;
+    }
 
-        @Override
-        public <U extends T> Event<U> select(TypeLiteral<U> uTypeLiteral, Annotation... annotations) {
-            throw new UnsupportedOperationException("Not implemented!");
+    private void registerObserverForPrototype(Bean bean, Object instance) {
+        for (EventObserver observer : bean.getObservers()) {
+            if  (!observerInstancesByEventType.containsKey(observer.getEventType())) {
+                observerInstancesByEventType.put(observer.getEventType(), new LinkedHashSet<>());
+            }
+            LOG.trace("Adding instance observer {} for bean: {}", observer, bean);
+            observerInstancesByEventType.get(observer.getEventType())
+                    .add(new EventObserverInstance(observer, instance));
         }
     }
 
@@ -156,8 +172,7 @@ public class SeeTheEye implements SeeTheEyeApi {
             LOG.trace("Returning cached singleton instance: {}", cachedInstance);
             return (T) cachedInstance;
         }
-        T instance = bean.newInstance(Collections.emptyList()); // FIXME implement injection for singletons
-        singletonsByBean.put(bean, instance);
+        T instance = instantiateBean(bean);
         LOG.trace("Returning initially created singleton instance: {}", cachedInstance);
         return instance;
     }
@@ -173,4 +188,12 @@ public class SeeTheEye implements SeeTheEyeApi {
         return Optional.empty();
     }
 
+    // ObserverRepository
+    @Override public <T> void dispatch(Class<T> type, T value) { // Event<T> event ... not used
+        // TODO check if any is registered at all!
+        Collection<EventObserverInstance> observers = observerInstancesByEventType.get(type);
+        for (EventObserverInstance observer : observers) {
+            observer.dispatch(value);
+        }
+    }
 }

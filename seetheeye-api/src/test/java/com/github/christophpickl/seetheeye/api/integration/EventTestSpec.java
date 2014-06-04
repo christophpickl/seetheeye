@@ -40,7 +40,11 @@ public abstract class EventTestSpec extends BaseTest {
         service.fire("foo");
         assertThat(service.dispatchedEvents, contains("foo"));
     }
+    // split event dispatcher and observer in two separate classes
+    // provider must be able to observe events as well
+    // support non-singletons for event bus
+    // support multiple @Observers for a single bean
+    // @Observer for bound instances
 
-    // TODO support non-singletons for event bus
 
 }

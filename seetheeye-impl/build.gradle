@@ -6,3 +6,15 @@ dependencies {
     compile 'org.slf4j:slf4j-log4j12:1.7.7'
     compile 'com.google.inject:guice:4.0-beta4'
 }
+
+test {
+    useTestNG()
+    include 'com/github/**'
+    // exclude 'org/boo/**'
+    testLogging.showStandardStreams = true
+    maxHeapSize = "512m"
+    jvmArgs '-XX:MaxPermSize=256m'
+    beforeTest { descriptor ->
+        logger.lifecycle("Running test: " + descriptor)
+    }
+}

@@ -3,9 +3,11 @@ package com.github.christophpickl.seetheeye.impl;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
+import javax.enterprise.event.Observes;
 import javax.inject.Provider;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
 
 public class SeeTheEyeBuilder {
@@ -40,9 +42,26 @@ public class SeeTheEyeBuilder {
             beans.addAll(config.getInstalledBeans());
             providers.addAll(config.getInstalledProviders());
         }
+        addOptionalObserves(beans);
         postValidate(beans, providers);
         return new SeeTheEye(beans, providers);
     }
+
+    private void addOptionalObserves(Collection<Bean> beans) {
+        for (Bean bean : beans) {
+            // FIXME hardcoded String observer
+            // for each method, check params for @Observers, verify single arg, extract type param)
+            for (Method method : bean.getBeanType().getDeclaredMethods()) {
+                Parameter[] parameters = method.getParameters();
+                if (parameters.length == 1 && parameters[0].isAnnotationPresent(Observes.class)) {
+                    LOG.debug("Found observer method {} for bean: {}", method, bean);
+                    bean.addObserver(new EventObserver(parameters[0].getType(), method));
+                }
+            }
+        }
+
+    }
+
 
     private void postValidate(Collection<Bean> beans, Collection<Class<? extends Provider<?>>> providers) {
         new CycleDetector().validateNoInjectCycles(beans);
