@@ -65,6 +65,7 @@ public class SeeTheEye implements SeeTheEyeApi, ObserverRepository {
 
     // also needs to be refactored
     static Class<?> extractProviderTypeParameter(Class<? extends Provider<?>> provider) {
+        // TODO ParameterizedTypeImpl is deprecated
         ParameterizedTypeImpl providerInterfaceGeneric = (ParameterizedTypeImpl) provider.getGenericInterfaces()[0];
         return (Class<?>) providerInterfaceGeneric.getActualTypeArguments()[0];
     }
@@ -173,6 +174,7 @@ public class SeeTheEye implements SeeTheEyeApi, ObserverRepository {
             return (T) cachedInstance;
         }
         T instance = instantiateBean(bean);
+        singletonsByBean.put(bean, instance);
         LOG.trace("Returning initially created singleton instance: {}", cachedInstance);
         return instance;
     }
