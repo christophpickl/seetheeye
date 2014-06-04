@@ -14,8 +14,8 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 
     dependencies {
         compile 'org.slf4j:slf4j-api:1.7.7'
@@ -24,6 +24,30 @@ subprojects {
         testCompile 'org.hamcrest:hamcrest-library:1.3'
         testCompile 'org.testng:testng:6.8.8'
     }
+
+    test {
+        useTestNG()
+        // include 'com/github/**'
+        // exclude 'org/boo/**'
+        testLogging.showStandardStreams = false
+        maxHeapSize = "512m"
+//        beforeTest { descriptor ->
+//            logger.lifecycle("Running test: " + descriptor)
+        // "Running test: test method event(com.github.christophpickl.seetheeye.impl.integration.EventTest)"
+//        }
+    }
+
+    task testJar(type: Jar, dependsOn: testClasses) {
+        baseName = "${project.archivesBaseName}-test"
+        from sourceSets.test.output
+    }
+    configurations {
+        tests
+    }
+    artifacts {
+        tests testJar
+    }
+
     repositories {
         mavenLocal()
         mavenCentral()

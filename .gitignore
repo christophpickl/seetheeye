@@ -14,3 +14,4 @@ hs_err_pid*
 
 # TODO is there a better way to do it?!
 seetheeye-api/build/
+seetheeye-impl/build/

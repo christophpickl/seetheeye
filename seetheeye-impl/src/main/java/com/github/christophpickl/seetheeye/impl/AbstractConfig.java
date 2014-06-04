@@ -62,6 +62,7 @@ public abstract class AbstractConfig implements Config {
 
     private Bean install(Class<?> beanType) {
         Bean bean = new Bean(beanType);
+        // TODO we could here already a little bit of analysis (at least reflection stuff)
         installedBeans.add(bean);
         return bean;
     }
