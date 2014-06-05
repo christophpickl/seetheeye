@@ -44,22 +44,22 @@ public abstract class ScopeTestSpec extends BaseTest {
     }
 
 
-    public void installConcreteBeanInScope_asDefaultPrototypeAndGettingTwoTimes_constructTwoInstances() {
-        SeeTheEyeApi eye = newEye(config -> config.installConcreteBean(ConstructorCounting.class));
+    public void installBeanInScope_asDefaultPrototypeAndGettingTwoTimes_constructTwoInstances() {
+        SeeTheEyeApi eye = newEye(config -> config.installBean(ConstructorCounting.class));
         eye.get(ConstructorCounting.class);
         eye.get(ConstructorCounting.class);
         assertThat(ConstructorCounting.constructorCalled, equalTo(2));
     }
 
-    public void installConcreteBeanInScope_asSingleton_constructBeanOnlyOnce() {
-        SeeTheEyeApi eye = newEye(config -> config.installConcreteBean(ConstructorCounting.class).inScope(Scope.SINGLETON));
+    public void installBeanInScope_asSingleton_constructBeanOnlyOnce() {
+        SeeTheEyeApi eye = newEye(config -> config.installBean(ConstructorCounting.class).inScope(Scope.SINGLETON));
         eye.get(ConstructorCounting.class);
         eye.get(ConstructorCounting.class);
         assertThat(ConstructorCounting.constructorCalled, equalTo(1));
     }
 
-    public void installConcreteBeanInScope_withSingletonAnnotation_constructBeanOnlyOnce() {
-        SeeTheEyeApi eye = newEye(config -> config.installConcreteBean(ConstructorCountingWithSingletonAnnotation.class));
+    public void installBeanInScope_withSingletonAnnotation_constructBeanOnlyOnce() {
+        SeeTheEyeApi eye = newEye(config -> config.installBean(ConstructorCountingWithSingletonAnnotation.class));
         eye.get(ConstructorCountingWithSingletonAnnotation.class);
         eye.get(ConstructorCountingWithSingletonAnnotation.class);
         assertThat(ConstructorCountingWithSingletonAnnotation.constructorCalled, equalTo(1));
@@ -67,8 +67,8 @@ public abstract class ScopeTestSpec extends BaseTest {
 
     public void installConcreteSingletonBean_withDependency_shouldInjectExistingSubBean() {
         assertThat(newEye(config -> {
-            config.installConcreteBean(WithInjected.class);
-            config.installConcreteBean(Beans.Empty.class);
+            config.installBean(WithInjected.class);
+            config.installBean(Beans.Empty.class);
         }).get(WithInjected.class).subBean, notNullValue());
     }
 

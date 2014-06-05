@@ -1,20 +1,15 @@
 package com.github.christophpickl.seetheeye.api.integration;
 
 import com.github.christophpickl.seetheeye.api.SeeTheEyeApi;
-import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
 import org.testng.annotations.Test;
 
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
-
 import java.util.LinkedList;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
 
 @Test
 public abstract class EventTestSpec extends BaseTest {
@@ -35,7 +30,7 @@ public abstract class EventTestSpec extends BaseTest {
     }
 
     public void event() {
-        SeeTheEyeApi eye = newEye(config -> config.installConcreteBean(Service.class));
+        SeeTheEyeApi eye = newEye(config -> config.installBean(Service.class));
         Service service = eye.get(Service.class);
         service.fire("foo");
         assertThat(service.dispatchedEvents, contains("foo"));

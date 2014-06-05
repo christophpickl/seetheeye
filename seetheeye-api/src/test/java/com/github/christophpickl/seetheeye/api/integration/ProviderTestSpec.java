@@ -48,7 +48,7 @@ public abstract class ProviderTestSpec extends BaseTest {
     @Test(expectedExceptions = SeeTheEyeException.ConfigInvalidException.class)
     public void installProvider_sameTypeAsBeanAndAsProvider_throwException() {
         newEye(config -> {
-            config.installConcreteBean(Beans.Empty.class);
+            config.installBean(Beans.Empty.class);
             config.installProvider(EmptyProvider.class);
         }).get(Beans.Empty.class);
     }

@@ -26,29 +26,29 @@ public abstract class InstallBeanTestSpec extends BaseTest {
     // -===============================================================================================================-
 
     public void installConcreteBean_withPackagePrivateVisibility_breakUpViaReflection() {
-        newEye(config -> config.installConcreteBean(PackagePrivateClass.class)).get(PackagePrivateClass.class);
+        newEye(config -> config.installBean(PackagePrivateClass.class)).get(PackagePrivateClass.class);
     }
 
     public void installConcreteBean_withPackagePrivateVisibleConstructor_breakUpViaReflection() {
-        newEye(config -> config.installConcreteBean(PackagePrivateConstructor.class)).get(PackagePrivateConstructor.class);
+        newEye(config -> config.installBean(PackagePrivateConstructor.class)).get(PackagePrivateConstructor.class);
     }
 
 
     public void installConcreteBean_installAndGetVerySameConcreteType_returnThatBean() {
-        assertThat(newEye(config -> config.installConcreteBean(Beans.Empty.class)).get(Beans.Empty.class),
+        assertThat(newEye(config -> config.installBean(Beans.Empty.class)).get(Beans.Empty.class),
                 instanceOf(Beans.Empty.class));
     }
 
     @Test(expectedExceptions = SeeTheEyeException.ConfigInvalidException.class)
     public void installConcreteBean_passingAnInterfaceTypethrowException() {
-        newEye(config -> config.installConcreteBean(Beans.BeanInterface.class));
+        newEye(config -> config.installBean(Beans.BeanInterface.class));
     }
 
     @Test(expectedExceptions = SeeTheEyeException.ConfigInvalidException.class)
     public void installConcreteBean_twoSameConcreteBeans_throwException() {
         newEye(config -> {
-            config.installConcreteBean(Beans.Empty.class);
-            config.installConcreteBean(Beans.Empty.class);
+            config.installBean(Beans.Empty.class);
+            config.installBean(Beans.Empty.class);
         });
     }
 
@@ -56,15 +56,15 @@ public abstract class InstallBeanTestSpec extends BaseTest {
     // -===============================================================================================================-
 
     public void installConcreteBeanAs_InterfaceAndGetByInterface_returnImpl() {
-        assertThat(newEye(config -> config.installConcreteBean(Beans.BeanInterfaceImpl.class).as(Beans.BeanInterface.class))
+        assertThat(newEye(config -> config.installBean(Beans.BeanInterfaceImpl.class).as(Beans.BeanInterface.class))
                         .get(Beans.BeanInterface.class),
                 instanceOf(Beans.BeanInterfaceImpl.class));
     }
 
     public void installConcreteBeanAs_twoDifferentInterfacesShouldBeAllowed() {
         SeeTheEyeApi eye = newEye(config -> {
-            config.installConcreteBean(Beans.BeanMultiInterfaceImpl.class).as(Beans.BeanInterface.class);
-            config.installConcreteBean(Beans.BeanMultiInterfaceImpl.class).as(Beans.BeanInterface2.class);
+            config.installBean(Beans.BeanMultiInterfaceImpl.class).as(Beans.BeanInterface.class);
+            config.installBean(Beans.BeanMultiInterfaceImpl.class).as(Beans.BeanInterface2.class);
         });
         assertThat(eye.get(Beans.BeanInterface.class), instanceOf(Beans.BeanMultiInterfaceImpl.class));
         assertThat(eye.get(Beans.BeanInterface2.class), instanceOf(Beans.BeanMultiInterfaceImpl.class));
@@ -72,8 +72,8 @@ public abstract class InstallBeanTestSpec extends BaseTest {
 
     public void installConcreteBeanAs_anInterfaceAndAsAConcreteBean_worksForBothSeperately() {
         SeeTheEyeApi eye = newEye(config -> {
-            config.installConcreteBean(Beans.BeanMultiInterfaceImpl.class).as(Beans.BeanInterface.class);
-            config.installConcreteBean(Beans.BeanMultiInterfaceImpl.class);
+            config.installBean(Beans.BeanMultiInterfaceImpl.class).as(Beans.BeanInterface.class);
+            config.installBean(Beans.BeanMultiInterfaceImpl.class);
         });
         assertThat(eye.get(Beans.BeanInterface.class), instanceOf(Beans.BeanMultiInterfaceImpl.class));
         assertThat(eye.get(Beans.BeanMultiInterfaceImpl.class), instanceOf(Beans.BeanMultiInterfaceImpl.class));
@@ -81,32 +81,32 @@ public abstract class InstallBeanTestSpec extends BaseTest {
 
     @Test(expectedExceptions = SeeTheEyeException.ConfigInvalidException.class)
     public void installConcreteBeanAs_nonInterfaceType_throwException() {
-        newEye(config -> config.installConcreteBean(Beans.BeanInterfaceImpl.class).as(Beans.Empty.class));
+        newEye(config -> config.installBean(Beans.BeanInterfaceImpl.class).as(Beans.Empty.class));
     }
 
     @Test(expectedExceptions = SeeTheEyeException.ConfigInvalidException.class)
     public void installConcreteBeanAs_notSubtypeOfGivenInterface_throwException() {
-        newEye(config -> config.installConcreteBean(Beans.BeanInterfaceImpl.class).as(Beans.BeanInterface2.class));
+        newEye(config -> config.installBean(Beans.BeanInterfaceImpl.class).as(Beans.BeanInterface2.class));
     }
 
     @Test(expectedExceptions = SeeTheEyeException.UnresolvableBeanException.class)
     public void installConcreteBeanAs_interfaceAndGetByImpl_throwException() {
-        newEye(config -> config.installConcreteBean(Beans.BeanInterfaceImpl.class).as(Beans.BeanInterface.class))
+        newEye(config -> config.installBean(Beans.BeanInterfaceImpl.class).as(Beans.BeanInterface.class))
                 .get(Beans.BeanInterfaceImpl.class);
     }
 
     @Test(expectedExceptions = SeeTheEyeException.ConfigInvalidException.class)
     public void installConcreteBeanAs_twoSameBeanInterface_throwException() {
         newEye(config -> {
-            config.installConcreteBean(Beans.BeanInterfaceImpl.class).as(Beans.BeanInterface.class);
-            config.installConcreteBean(Beans.BeanInterfaceImpl2.class).as(Beans.BeanInterface.class);
+            config.installBean(Beans.BeanInterfaceImpl.class).as(Beans.BeanInterface.class);
+            config.installBean(Beans.BeanInterfaceImpl2.class).as(Beans.BeanInterface.class);
         });
     }
 
     @Test(expectedExceptions = SeeTheEyeException.UnresolvableBeanException.class)
     public void installConcreteBeanAs_subInterfaceTypeAndGetBySuperInterfaceType_throwExceptionAsNotSupported() {
         newEye(config -> {
-            config.installConcreteBean(Beans.BeanInterfaceSubImpl.class).as(Beans.BeanInterfaceSub.class);
+            config.installBean(Beans.BeanInterfaceSubImpl.class).as(Beans.BeanInterfaceSub.class);
         }).get(Beans.BeanInterface.class); // only registered as BeanInterfaceSub, requesting by parent type not supported
     }
 
