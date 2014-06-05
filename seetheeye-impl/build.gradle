@@ -2,7 +2,6 @@
 dependencies {
     compile project(':seetheeye-api')
 
-    compile 'javax.enterprise:cdi-api:1.2'
     compile 'org.slf4j:slf4j-log4j12:1.7.7'
     compile 'com.google.inject:guice:4.0-beta4'
 

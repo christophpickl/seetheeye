@@ -1,11 +1,6 @@
 
 version = '1.0-SNAPSHOT'
 
-//Closure cl = { task -> println "===> Executing gradle on project: $task.project.name" }
-//task printHeader << cl
-//project(':seetheeye-impl') {
-//    task hello << cl
-//}
 
 allprojects {
     task printHeader << { task -> println "===> Executing gradle on project: $task.project.name" }
@@ -29,9 +24,9 @@ subprojects {
         useTestNG()
         testLogging.showStandardStreams = false
         maxHeapSize = "512m"
-//        }
     }
 
+    // provide a test jar
     task testJar(type: Jar, dependsOn: testClasses) {
         baseName = "${project.archivesBaseName}-test"
         from sourceSets.test.output
