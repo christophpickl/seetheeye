@@ -65,7 +65,7 @@ public abstract class ScopeTestSpec extends BaseTest {
         assertThat(ConstructorCountingWithSingletonAnnotation.constructorCalled, equalTo(1));
     }
 
-    public void singleton_injection_FAAAAIL_FIXME() {
+    public void installConcreteSingletonBean_withDependency_shouldInjectExistingSubBean() {
         assertThat(newEye(config -> {
             config.installConcreteBean(WithInjected.class);
             config.installConcreteBean(Beans.Empty.class);

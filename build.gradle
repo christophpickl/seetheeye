@@ -1,12 +1,6 @@
 
 version = '1.0-SNAPSHOT'
 
-//Closure cl = { task -> println "===> Executing gradle on project: $task.project.name" }
-//task printHeader << cl
-//project(':com.github.christophpickl.seetheeye.impl-api') {
-//    task hello << cl
-//}
-
 allprojects {
     task printHeader << { task -> println "===> Executing gradle on project: $task.project.name" }
     apply plugin: 'idea'
@@ -27,16 +21,11 @@ subprojects {
 
     test {
         useTestNG()
-        // include 'com/github/**'
-        // exclude 'org/boo/**'
         testLogging.showStandardStreams = false
         maxHeapSize = "512m"
-//        beforeTest { descriptor ->
-//            logger.lifecycle("Running test: " + descriptor)
-        // "Running test: test method event(com.github.christophpickl.seetheeye.impl.integration.EventTest)"
-//        }
     }
 
+    // provide a test jar
     task testJar(type: Jar, dependsOn: testClasses) {
         baseName = "${project.archivesBaseName}-test"
         from sourceSets.test.output

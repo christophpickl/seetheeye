@@ -1,5 +1,2 @@
 
-//println 'This is executed during the initialization phase.'
-
 include 'seetheeye-api', 'seetheeye-impl'
-//include 'com.github.christophpickl.seetheeye.impl-api', 'com.github.christophpickl.seetheeye.impl-impl'
