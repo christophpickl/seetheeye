@@ -1,6 +1,7 @@
 package com.github.christophpickl.seetheeye.impl2;
 
 import com.github.christophpickl.seetheeye.api.SeeTheEyeApi;
+import com.github.christophpickl.seetheeye.impl2.build.BeanAnalyzer;
 import com.github.christophpickl.seetheeye.impl2.build.ContextFactory;
 import com.github.christophpickl.seetheeye.impl2.build.ContextFactoryImpl;
 import com.github.christophpickl.seetheeye.impl2.build.SeeTheEyeBuilder;
@@ -18,7 +19,7 @@ public class SeeTheEye implements SeeTheEyeApi {
 
     @Override
     public <T> T get(Class<T> beanType) {
-        return null;
+        return context.get(beanType);
     }
 
     public static SeeTheEyeBuilder builder() {
@@ -31,6 +32,7 @@ public class SeeTheEye implements SeeTheEyeApi {
         @Override
         protected void configure() {
             bind(SeeTheEyeBuilder.class);
+            bind(BeanAnalyzer.class);
             bind(ContextFactory.class).to(ContextFactoryImpl.class);
         }
     }

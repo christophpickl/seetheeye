@@ -2,8 +2,22 @@ package com.github.christophpickl.seetheeye.api;
 
 import java.util.Collection;
 
-public interface ConfigurationDefinition {
+public class ConfigurationDefinition {
 
-    Collection<BeanDefinition> getBeans();
+    private final AbstractConfiguration originalUserConfiguration;
+    private final Collection<BeanDefinition> beans;
+
+    public ConfigurationDefinition(AbstractConfiguration originalUserConfiguration, Collection<BeanDefinition> beans) {
+        this.originalUserConfiguration = originalUserConfiguration;
+        this.beans = beans;
+    }
+
+    public final AbstractConfiguration getOriginalUserConfiguration() {
+        return originalUserConfiguration;
+    }
+
+    public final Collection<BeanDefinition> getBeans() {
+        return beans;
+    }
 
 }

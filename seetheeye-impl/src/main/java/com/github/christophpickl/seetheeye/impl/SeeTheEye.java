@@ -3,6 +3,7 @@ package com.github.christophpickl.seetheeye.impl;
 import com.github.christophpickl.seetheeye.api.Scope;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeApi;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
+import com.github.christophpickl.seetheeye.impl2.ReflectionUtil;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,13 +82,13 @@ public class SeeTheEye implements SeeTheEyeApi, ObserverRepository {
             Class<? extends Provider<Object>> providerType = (Class<? extends Provider<Object>>)beanType;
             // TODO figure out proper constructor for provider
             LOG.trace("Returning provider: {}", providerType.getName());
-            return (T) Reflections.instantiate(providerType.getDeclaredConstructors()[0]);
+            return (T) ReflectionUtil.instantiate(providerType.getDeclaredConstructors()[0]);
         }
         if (providersByBeanType.containsKey(beanType)) {
             Class<? extends Provider<T>> providerType = (Class<? extends Provider<T>>) providersByBeanType.get(beanType);
             // TODO figure out proper constructor for provider
             LOG.trace("Returning provider instance by: {}", providerType.getName());
-            Provider<T> provider = (Provider<T>) Reflections.instantiate(providerType.getDeclaredConstructors()[0]);
+            Provider<T> provider = (Provider<T>) ReflectionUtil.instantiate(providerType.getDeclaredConstructors()[0]);
             return provider.get();
         }
 

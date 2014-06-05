@@ -1,5 +1,7 @@
 package com.github.christophpickl.seetheeye.api;
 
+import com.github.christophpickl.seetheeye.api.build.BeanBuilder;
+import com.github.christophpickl.seetheeye.api.build.InstanceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,12 +19,9 @@ public abstract class AbstractConfiguration {
 
     // TODO should be package private
     public final ConfigurationDefinition newDefinition() {
-        return new ConfigurationDefinition() {
-            @Override
-            public Collection<BeanDefinition> getBeans() {
-                return beans;
-            }
-        };
+        LOG.trace("new Definition() for this: {}", getClass().getName());
+        configure();
+        return new ConfigurationDefinition(this, beans);
     }
 
     // TODO should be protected, but because of easier testing made public ;)
@@ -31,14 +30,14 @@ public abstract class AbstractConfiguration {
         BeanDefinition bean = new BeanDefinition(beanType);
         beans.add(bean);
         return new BeanBuilder() {
-            // FIXME implement me
             @Override
             public void inScope(Scope scope) {
+                throw new UnsupportedOperationException("not implemented");
             }
 
             @Override
             public void as(Class<?> interfaceType) {
-
+                throw new UnsupportedOperationException("not implemented");
             }
         };
     }

@@ -1,4 +1,4 @@
-package com.github.christophpickl.seetheeye.impl;
+package com.github.christophpickl.seetheeye.impl2;
 
 import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
 import org.slf4j.Logger;
@@ -6,13 +6,14 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
-final class Reflections {
+public final class ReflectionUtil {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Reflections.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ReflectionUtil.class);
 
-    private Reflections() {}
+    private ReflectionUtil() {}
 
     public static <T> T instantiate(Constructor<T> constructor, Object... arguments) {
         LOG.trace("instantiate(constructor={}, arguments={})", constructor, Arrays.toString(arguments));
@@ -25,6 +26,17 @@ final class Reflections {
         } finally {
             constructor.setAccessible(wasAccessible);
         }
+    }
+
+    public static String paramsToString(Constructor constructor) {
+        if (constructor.getParameters().length == 0) {
+            return "";
+        }
+        StringBuilder string = new StringBuilder();
+        for (Parameter param : constructor.getParameters()) {
+            string.append(", ").append(param.getType().getName()).append(" ").append(param.getName());
+        }
+        return string.substring(2);
     }
 
 }

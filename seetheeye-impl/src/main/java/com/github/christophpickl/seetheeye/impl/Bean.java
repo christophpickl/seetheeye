@@ -3,6 +3,7 @@ package com.github.christophpickl.seetheeye.impl;
 import com.github.christophpickl.seetheeye.api.BeanConfigurationPostProcessor;
 import com.github.christophpickl.seetheeye.api.Scope;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
+import com.github.christophpickl.seetheeye.impl2.ReflectionUtil;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +69,7 @@ class Bean implements BeanConfigurationPostProcessor {
 
 
     public <T> T newInstance(List<Object> arguments) {
-        return (T) Reflections.instantiate(metaClass.getConstructor(), arguments.toArray());
+        return (T) ReflectionUtil.instantiate(metaClass.getConstructor(), arguments.toArray());
     }
 
     public Scope getScope() {

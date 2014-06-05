@@ -2,7 +2,7 @@ package com.github.christophpickl.seetheeye.impl.integration;
 
 import com.github.christophpickl.seetheeye.api.Action1;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeApi;
-import com.github.christophpickl.seetheeye.impl.Log4j;
+import com.github.christophpickl.seetheeye.impl2.Log4j;
 import com.github.christophpickl.seetheeye.impl2.SeeTheEye;
 import com.github.christophpickl.seetheeye.api.AbstractConfiguration;
 

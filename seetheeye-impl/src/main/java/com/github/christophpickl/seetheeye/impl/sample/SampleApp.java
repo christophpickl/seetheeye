@@ -1,7 +1,7 @@
 package com.github.christophpickl.seetheeye.impl.sample;
 
 import com.github.christophpickl.seetheeye.impl.AbstractConfig;
-import com.github.christophpickl.seetheeye.impl.Log4j;
+import com.github.christophpickl.seetheeye.impl2.Log4j;
 import com.github.christophpickl.seetheeye.impl.SeeTheEye;
 import com.google.common.base.Preconditions;
 
