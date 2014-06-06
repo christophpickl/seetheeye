@@ -16,6 +16,7 @@ import java.util.*;
 /**
  * Main entry point.
  */
+@Deprecated
 public class SeeTheEye implements SeeTheEyeApi, ObserverRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(SeeTheEye.class);

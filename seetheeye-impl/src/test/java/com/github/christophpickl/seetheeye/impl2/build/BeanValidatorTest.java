@@ -37,7 +37,7 @@ public class BeanValidatorTest {
     private void validate(Class<?>... beanTypes) {
         Collection<BeanDefinition> beans = new LinkedList<>();
         for (Class<?> beanType : beanTypes) {
-            beans.add(new BeanDefinition(beanType));
+            beans.add(new BeanDefinition(new MetaClass(beanType)));
         }
         new BeanValidator().validate(Arrays.asList(new ConfigurationDefinition(new TestableConfiguration(), beans)));
     }

@@ -4,13 +4,13 @@ import com.google.common.base.Objects;
 
 public class BeanDefinition {
 
-    private final Class<?> beanType;
+    private final MetaClass<?> beanType;
 
-    public BeanDefinition(Class<?> beanType) {
+    public BeanDefinition(MetaClass<?> beanType) {
         this.beanType = beanType;
     }
 
-    public Class<?> getBeanType() {
+    public MetaClass<?> getBeanType() {
         return beanType;
     }
 

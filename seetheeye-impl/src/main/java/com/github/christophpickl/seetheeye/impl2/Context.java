@@ -12,7 +12,7 @@ public class Context {
 
     public Context(Collection<BeanDefinitionX> beans) {
         for (BeanDefinitionX bean : beans) {
-            beansByType.put(bean.getRegistrationType(), bean);
+            beansByType.put(bean.getRegistrationType().getInnerType(), bean);
         }
     }
 

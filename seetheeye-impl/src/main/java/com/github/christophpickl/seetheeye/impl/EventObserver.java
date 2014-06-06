@@ -3,6 +3,7 @@ package com.github.christophpickl.seetheeye.impl;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+@Deprecated
 public class EventObserver {
 
 //    private final Bean bean;

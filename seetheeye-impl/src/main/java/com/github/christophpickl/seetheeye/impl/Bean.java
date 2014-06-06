@@ -14,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 
+@Deprecated
 class Bean implements BeanConfigurationPostProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(Bean.class);

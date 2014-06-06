@@ -1,5 +1,6 @@
 package com.github.christophpickl.seetheeye.impl2.build;
 
+import com.github.christophpickl.seetheeye.api.MetaClass;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
 import org.testng.annotations.Test;
 
@@ -33,7 +34,7 @@ public class BeanAnalyzerTest {
     }
 
     private Constructor findConstructor(Class<?> type) {
-        return new BeanAnalyzer().findConstructor(type);
+        return new BeanAnalyzer().findConstructor(new MetaClass<>(type));
     }
 
     static class Empty { }

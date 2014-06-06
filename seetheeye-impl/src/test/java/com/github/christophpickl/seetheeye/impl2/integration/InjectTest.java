@@ -1,4 +1,4 @@
-package com.github.christophpickl.seetheeye.impl.integration;
+package com.github.christophpickl.seetheeye.impl2.integration;
 
 import com.github.christophpickl.seetheeye.api.AbstractConfiguration;
 import com.github.christophpickl.seetheeye.api.Action1;

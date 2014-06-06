@@ -7,6 +7,7 @@ import javax.enterprise.event.Event;
 import javax.enterprise.util.TypeLiteral;
 import java.lang.annotation.Annotation;
 
+@Deprecated
 class EventDispatcher<T> implements Event<T> {
 
     private static final Logger LOG = LoggerFactory.getLogger(EventDispatcher.class);

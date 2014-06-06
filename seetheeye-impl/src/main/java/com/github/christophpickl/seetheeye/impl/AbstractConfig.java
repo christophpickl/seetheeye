@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 
 // TODO this should be actually part of the API module as it is supposed to help the client in usage
+@Deprecated
 public abstract class AbstractConfig implements Config {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractConfig.class);

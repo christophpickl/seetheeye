@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
 
+@Deprecated
 public class SeeTheEyeBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(SeeTheEyeBuilder.class);
