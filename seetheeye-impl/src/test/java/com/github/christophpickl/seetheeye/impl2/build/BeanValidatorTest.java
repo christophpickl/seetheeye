@@ -39,7 +39,7 @@ public class BeanValidatorTest {
         for (Class<?> beanType : beanTypes) {
             beans.add(new BeanDefinition(new MetaClass(beanType)));
         }
-        new BeanValidator().validate(Arrays.asList(new ConfigurationDefinition(new TestableConfiguration(), beans)));
+        new BeanValidator().validatePre(Arrays.asList(new ConfigurationDefinition(new TestableConfiguration(), beans)));
     }
 
     static class ConcreteStaticNestedClass { }

@@ -21,7 +21,7 @@ NON-FEATURES
 ------------
 
 * Component-Scan
-* Resolving beans by their super-type (was a hard decision)
+* Resolving repo by their super-type (was a hard decision)
 
 
 TODO

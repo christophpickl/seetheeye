@@ -10,13 +10,13 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 
-public class MetaClass<T> {
+public class MetaClass {
 
-    private final Class<T> innerType;
+    private final Class<?> innerType;
     private final boolean isAbstract;
     private final boolean isInnerClass;
 
-    public MetaClass(Class<T> innerType) {
+    public MetaClass(Class<?> innerType) {
         this.innerType = innerType;
         int modifiers = innerType.getModifiers();
         this.isAbstract = Modifier.isAbstract(modifiers);
@@ -24,7 +24,7 @@ public class MetaClass<T> {
         this.isInnerClass = innerType.getDeclaringClass() != null && !isStatic;
     }
 
-    public Class<T> getEnclosedClass() {
+    public Class<?> getEnclosedClass() {
         return innerType;
     }
 

@@ -9,16 +9,16 @@ public class BeanDefinition {
 
     private static final Scope DEFAULT_SCOPE = Scope.PROTOTYPE;
 
-    private final MetaClass<?> beanType;
+    private final MetaClass beanType;
 
     private Scope scope;
 
-    public BeanDefinition(MetaClass<?> beanType) {
+    public BeanDefinition(MetaClass beanType) {
         this.beanType = beanType;
         this.scope = beanType.isAnnotationPresent(Singleton.class) ? Scope.SINGLETON : DEFAULT_SCOPE;
     }
 
-    public MetaClass<?> getBeanType() {
+    public MetaClass getBeanType() {
         return beanType;
     }
 

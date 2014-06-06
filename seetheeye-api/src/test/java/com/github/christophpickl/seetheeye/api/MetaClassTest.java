@@ -32,8 +32,8 @@ public class MetaClassTest {
         assertThat(testee(clazz).getDeclaredConstructors(), hasSize(expectedSize));
     }
 
-    private static <T> MetaClass<T> testee(Class<T> clazz) {
-        return new MetaClass<>(clazz);
+    private static MetaClass testee(Class<?> clazz) {
+        return new MetaClass(clazz);
     }
 
     static class Empty { }

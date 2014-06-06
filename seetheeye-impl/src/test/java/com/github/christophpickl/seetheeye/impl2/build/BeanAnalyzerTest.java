@@ -39,7 +39,7 @@ public class BeanAnalyzerTest {
     }
 
     private static Constructor findConstructor(Class<?> type) {
-        return new BeanAnalyzer().findProperConstructor(new MetaClass<>(type));
+        return new BeanAnalyzer().findProperConstructor(new MetaClass(type));
     }
 
 

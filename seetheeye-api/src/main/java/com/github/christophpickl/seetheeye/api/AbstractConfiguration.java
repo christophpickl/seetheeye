@@ -27,7 +27,7 @@ public abstract class AbstractConfiguration {
     // TODO should be protected, but because of easier testing made public ;)
     public final BeanBuilder installBean(Class<?> beanType) {
         LOG.debug("installBean(beanType={})", beanType.getName());
-        BeanDefinition bean = new BeanDefinition(new MetaClass<Object>((Class<Object>)beanType));
+        BeanDefinition bean = new BeanDefinition(new MetaClass(beanType));
         beans.add(bean);
         return new BeanBuilder() {
             @Override
