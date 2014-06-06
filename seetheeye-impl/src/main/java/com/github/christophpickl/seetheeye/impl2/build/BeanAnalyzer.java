@@ -15,18 +15,19 @@ public class BeanAnalyzer {
 
     private static final Logger LOG = LoggerFactory.getLogger(BeanAnalyzer.class);
 
-    public Constructor findConstructor(MetaClass<?> beanType) {
-        LOG.trace("findConstructor(beanType={})", beanType);
+    public Constructor findProperConstructor(MetaClass<?> beanType) {
+        LOG.trace("findProperConstructor(beanType={})", beanType);
 
-        Collection<Constructor> constructors = beanType.getDeclaredConstructors();
-
-        if (constructors.size() == 1) {
-            Constructor singleConstructor = constructors.iterator().next();
+        if (beanType.hasOnlySingleConstructor()) {
+            Constructor singleConstructor = beanType.getSingleConstructor();
             LOG.trace("Found only single existing constructor with parameters: [{}]",
                 ReflectionUtil.paramsToString(singleConstructor));
             return singleConstructor;
         }
-        findInjectConstructor(beanType);
+        Optional<Constructor> foundInjectConstructor = findInjectConstructor(beanType);
+        if (foundInjectConstructor.isPresent()) {
+            return foundInjectConstructor.get();
+        }
 
         throw new SeeTheEyeException.InvalidBeanException("Invalid bean type: " + beanType.getName() + "! " +
                 "Not found @Inject on any constructor, nor is the default constructor existing!");

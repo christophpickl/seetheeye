@@ -15,27 +15,6 @@ import static org.hamcrest.Matchers.notNullValue;
 @Test
 public abstract class ScopeTestSpec extends BaseTest {
 
-    static class ConstructorCounting {
-        static int constructorCalled; // watch out to reset the variable before/after running test against this
-        ConstructorCounting() {
-            constructorCalled++;
-        }
-    }
-
-    @Singleton
-    static class ConstructorCountingWithSingletonAnnotation {
-        static int constructorCalled; // watch out to reset the variable before/after running test against this
-        ConstructorCountingWithSingletonAnnotation() {
-            constructorCalled++;
-        }
-    }
-
-    @Singleton
-    static class WithInjected {
-        Beans.Empty subBean;
-        @Inject WithInjected(Beans.Empty subBean) { this.subBean = subBean; }
-    }
-
 
     @BeforeMethod
     public void init() {
@@ -70,6 +49,27 @@ public abstract class ScopeTestSpec extends BaseTest {
             config.installBean(WithInjected.class);
             config.installBean(Beans.Empty.class);
         }).get(WithInjected.class).subBean, notNullValue());
+    }
+
+    static class ConstructorCounting {
+        static int constructorCalled; // watch out to reset the variable before/after running test against this
+        ConstructorCounting() {
+            constructorCalled++;
+        }
+    }
+
+    @Singleton
+    static class ConstructorCountingWithSingletonAnnotation {
+        static int constructorCalled; // watch out to reset the variable before/after running test against this
+        ConstructorCountingWithSingletonAnnotation() {
+            constructorCalled++;
+        }
+    }
+
+    @Singleton
+    static class WithInjected {
+        Beans.Empty subBean;
+        @Inject WithInjected(Beans.Empty subBean) { this.subBean = subBean; }
     }
 
 }

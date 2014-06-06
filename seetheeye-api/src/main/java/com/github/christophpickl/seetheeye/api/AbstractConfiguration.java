@@ -32,7 +32,7 @@ public abstract class AbstractConfiguration {
         return new BeanBuilder() {
             @Override
             public void inScope(Scope scope) {
-                throw new UnsupportedOperationException("not implemented");
+                bean.setScope(scope);
             }
 
             @Override

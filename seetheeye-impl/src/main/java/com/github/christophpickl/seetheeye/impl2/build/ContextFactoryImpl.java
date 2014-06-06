@@ -2,8 +2,10 @@ package com.github.christophpickl.seetheeye.impl2.build;
 
 import com.github.christophpickl.seetheeye.api.BeanDefinition;
 import com.github.christophpickl.seetheeye.api.ConfigurationDefinition;
+import com.github.christophpickl.seetheeye.api.Scope;
 import com.github.christophpickl.seetheeye.impl2.BeanDefinitionX;
 import com.github.christophpickl.seetheeye.impl2.Context;
+import com.github.christophpickl.seetheeye.impl2.SingletonBeanDefinitionX;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,15 +32,24 @@ public class ContextFactoryImpl implements ContextFactory {
         LOG.debug("create(definitions)");
         validator.validate(definitions);
 
-        Collection<BeanDefinitionX> allBeans = new LinkedList<>();
+        return new Context(createBeans(definitions));
+    }
+
+    private Collection<BeanDefinitionX> createBeans(Collection<ConfigurationDefinition> definitions) {
+        Collection<BeanDefinitionX> beans = new LinkedList<>();
         for (ConfigurationDefinition definition : definitions) {
-            Collection<BeanDefinition> beans = definition.getBeans();
-            for (BeanDefinition bean : beans) {
-                Constructor constructor = analyzer.findConstructor(bean.getBeanType());
-                allBeans.add(new BeanDefinitionX(bean.getBeanType(), constructor));
+            for (BeanDefinition bean : definition.getBeans()) {
+                Constructor constructor = analyzer.findProperConstructor(bean.getBeanType());
+                BeanDefinitionX definitionX;
+                if (bean.getScope() == Scope.SINGLETON) {
+                    definitionX = new SingletonBeanDefinitionX(bean.getBeanType(), constructor);
+                } else {
+                    definitionX = new BeanDefinitionX(bean.getBeanType(), constructor);
+                }
+                beans.add(definitionX);
             }
         }
-        return new Context(allBeans);
+        return beans;
     }
 
 }

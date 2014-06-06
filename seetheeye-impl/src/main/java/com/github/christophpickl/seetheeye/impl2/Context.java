@@ -8,19 +8,19 @@ import java.util.Map;
 
 public class Context {
 
-    private final Map<Class<?>, BeanDefinitionX> beansByType = new HashMap<>();
+    private final Map<Class<?>, DefinitionX> definitionsByRegistrationType = new HashMap<>();
 
     public Context(Collection<BeanDefinitionX> beans) {
         for (BeanDefinitionX bean : beans) {
-            beansByType.put(bean.getRegistrationType().getInnerType(), bean);
+            definitionsByRegistrationType.put(bean.getRegistrationType().getEnclosedClass(), bean);
         }
     }
 
     public <T> T get(Class<T> beanType) {
-        if (!beansByType.containsKey(beanType)) {
+        if (!definitionsByRegistrationType.containsKey(beanType)) {
             throw new SeeTheEyeException.UnresolvableBeanException(beanType);
         }
-        BeanDefinitionX bean = beansByType.get(beanType);
+        DefinitionX bean = definitionsByRegistrationType.get(beanType);
         return (T) bean.instance();
     }
 }

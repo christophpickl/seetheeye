@@ -21,7 +21,7 @@ public final class ReflectionUtil {
         constructor.setAccessible(true);
         try {
             return constructor.newInstance(arguments);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
             throw new SeeTheEyeException.BeanInstantiationException(constructor.getDeclaringClass(), e);
         } finally {
             constructor.setAccessible(wasAccessible);

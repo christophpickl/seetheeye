@@ -24,7 +24,7 @@ public class MetaClass<T> {
         this.isInnerClass = innerType.getDeclaringClass() != null && !isStatic;
     }
 
-    public Class<T> getInnerType() {
+    public Class<T> getEnclosedClass() {
         return innerType;
     }
 
@@ -58,5 +58,18 @@ public class MetaClass<T> {
     public Collection<Constructor> getDeclaredConstructorsAnnotatedWith(Class<? extends Annotation> constructorAnnotation) {
         return getDeclaredConstructors().stream().filter(constructor -> constructor.isAnnotationPresent(constructorAnnotation))
                 .collect(Collectors.toCollection(LinkedList::new));
+    }
+
+    public boolean hasOnlySingleConstructor() {
+        return getDeclaredConstructors().size() == 1;
+    }
+
+    public Constructor getSingleConstructor() {
+        if (!hasOnlySingleConstructor()) throw new IllegalStateException("Type " + getName() + " does not have one constructor!");
+        return getDeclaredConstructors().iterator().next();
+    }
+
+    public boolean isAnnotationPresent(Class<? extends Annotation> annotation) {
+        return innerType.isAnnotationPresent(annotation);
     }
 }
