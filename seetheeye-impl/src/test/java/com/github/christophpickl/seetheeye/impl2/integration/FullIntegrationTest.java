@@ -1,9 +1,9 @@
 package com.github.christophpickl.seetheeye.impl2.integration;
 
 import com.github.christophpickl.seetheeye.api.SeeTheEyeApi;
+import com.github.christophpickl.seetheeye.api.configuration.Configuration;
 import com.github.christophpickl.seetheeye.impl2.Log4j;
 import com.github.christophpickl.seetheeye.impl2.SeeTheEye;
-import com.github.christophpickl.seetheeye.api.configuration.AbstractConfiguration;
 import org.testng.annotations.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -21,7 +21,7 @@ public class FullIntegrationTest {
         assertThat(eye.get(Bean.class), notNullValue());
     }
 
-    static class TestConfiguration extends AbstractConfiguration {
+    static class TestConfiguration extends Configuration {
         @Override
         protected void configure() {
             installBean(Bean.class);

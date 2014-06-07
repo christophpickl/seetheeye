@@ -1,7 +1,6 @@
 package com.github.christophpickl.seetheeye.impl2.validation;
 
 import com.github.christophpickl.seetheeye.api.MetaClass;
-import com.github.christophpickl.seetheeye.api.TestableConfiguration;
 import com.github.christophpickl.seetheeye.api.configuration.BeanDeclaration;
 import com.github.christophpickl.seetheeye.api.configuration.ConfigurationDeclaration;
 import com.github.christophpickl.seetheeye.api.configuration.InstanceDeclaration;
@@ -28,7 +27,7 @@ public class PreValidatorTest {
         Collection<BeanDeclaration> beans = Arrays.asList();
         Collection<InstanceDeclaration> instances = Arrays.asList(new InstanceDeclaration(new ClassNotImplementingInterface())
             .addRegistrationType(new MetaClass(Interface.class)));
-        declarations.add(new ConfigurationDeclaration(new TestableConfiguration(), beans, instances));
+        declarations.add(new ConfigurationDeclaration(beans, instances));
 
         assertErrors(declarations, "Given bean '" + ClassNotImplementingInterface.class.getName() + "' does not implement " +
                 "interface '" + Interface.class.getName() + "'!");

@@ -47,7 +47,7 @@ public abstract class ScopeTestSpec extends BaseTest {
     public void installConcreteSingletonBean_withDependency_shouldInjectExistingSubBean() {
         assertThat(newEye(config -> {
             config.installBean(WithInjected.class);
-            config.installBean(Beans.Empty.class);
+            config.installBean(Empty.class);
         }).get(WithInjected.class).subBean, notNullValue());
     }
 
@@ -75,8 +75,8 @@ public abstract class ScopeTestSpec extends BaseTest {
 
     @Singleton
     static class WithInjected {
-        Beans.Empty subBean;
-        @Inject WithInjected(Beans.Empty subBean) { this.subBean = subBean; }
+        Empty subBean;
+        @Inject WithInjected(Empty subBean) { this.subBean = subBean; }
     }
 
 }

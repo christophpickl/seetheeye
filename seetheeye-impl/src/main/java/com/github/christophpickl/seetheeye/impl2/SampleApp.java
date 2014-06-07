@@ -1,7 +1,7 @@
 package com.github.christophpickl.seetheeye.impl2;
 
 import com.github.christophpickl.seetheeye.api.SeeTheEyeApi;
-import com.github.christophpickl.seetheeye.api.configuration.AbstractConfiguration;
+import com.github.christophpickl.seetheeye.api.configuration.Configuration;
 
 class SampleApp {
 
@@ -12,7 +12,7 @@ class SampleApp {
         eye.get(Greeter.class).greet("World");
     }
 
-    static class SampleConfiguration extends AbstractConfiguration {
+    static class SampleConfiguration extends Configuration {
         @Override protected void configure() {
             installBean(InformalSalutator.class).as(Salutator.class);
             installBean(StandardOutGreeter.class).as(Greeter.class);

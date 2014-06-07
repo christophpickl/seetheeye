@@ -30,6 +30,7 @@ TODO
 * provider should be singletons (by default? configurable?)
 * provider should be able to get stuff injected
 * install sub configs
+** how should be proceeded with re-defining beans?!
 * event bus
 * completely refactor internals and write proper unit tests
 * enhanced validation (check everything on startup, not when getting a specific declaration)
