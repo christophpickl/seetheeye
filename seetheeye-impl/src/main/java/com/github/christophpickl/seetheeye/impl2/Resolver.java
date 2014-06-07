@@ -11,13 +11,13 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 
-public class Context {
+public class Resolver {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Context.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Resolver.class);
 
     private final DefinitionRepository repo;
 
-    public Context(DefinitionRepository repo) {
+    public Resolver(DefinitionRepository repo) {
         this.repo = repo;
     }
 

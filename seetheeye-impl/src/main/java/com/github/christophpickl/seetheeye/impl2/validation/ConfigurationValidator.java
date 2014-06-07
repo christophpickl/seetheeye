@@ -25,7 +25,7 @@ public class ConfigurationValidator {
     public void validatePost(DefinitionRepository repo) {
         LOG.debug("validatePost(repo)");
         Collection<String> errorMessages = new LinkedList<>();
-        errorMessages.addAll(new PostDependencyCycleDetector(repo).detect());
+        errorMessages.addAll(new PostValidator(repo).detect());
         throwExceptionIfErrorExists(errorMessages);
     }
 

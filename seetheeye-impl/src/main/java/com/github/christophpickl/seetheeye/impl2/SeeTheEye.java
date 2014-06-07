@@ -1,10 +1,9 @@
 package com.github.christophpickl.seetheeye.impl2;
 
 import com.github.christophpickl.seetheeye.api.SeeTheEyeApi;
-import com.github.christophpickl.seetheeye.impl2.build.BeanAnalyzer;
-import com.github.christophpickl.seetheeye.impl2.build.ContextFactory;
-import com.github.christophpickl.seetheeye.impl2.build.ContextFactoryImpl;
-import com.github.christophpickl.seetheeye.impl2.build.SeeTheEyeBuilder;
+import com.github.christophpickl.seetheeye.impl2.build.*;
+import com.github.christophpickl.seetheeye.impl2.build.ResolverFactoryImpl;
+import com.github.christophpickl.seetheeye.impl2.build.ResolverFactory;
 import com.github.christophpickl.seetheeye.impl2.validation.ConfigurationValidator;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -12,15 +11,15 @@ import com.google.inject.Injector;
 
 public class SeeTheEye implements SeeTheEyeApi {
 
-    private final Context context;
+    private final Resolver resolver;
 
-    public SeeTheEye(Context context) {
-        this.context = context;
+    public SeeTheEye(Resolver resolver) {
+        this.resolver = resolver;
     }
 
     @Override
     public <T> T get(Class<T> beanType) {
-        return context.get(beanType);
+        return resolver.get(beanType);
     }
 
     public static SeeTheEyeBuilder builder() {
@@ -35,7 +34,7 @@ public class SeeTheEye implements SeeTheEyeApi {
             bind(SeeTheEyeBuilder.class);
             bind(BeanAnalyzer.class);
             bind(ConfigurationValidator.class);
-            bind(ContextFactory.class).to(ContextFactoryImpl.class);
+            bind(ResolverFactory.class).to(ResolverFactoryImpl.class);
         }
     }
 

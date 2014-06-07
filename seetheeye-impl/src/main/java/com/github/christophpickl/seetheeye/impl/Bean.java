@@ -2,108 +2,77 @@ package com.github.christophpickl.seetheeye.impl;
 
 import com.github.christophpickl.seetheeye.api.BeanConfigurationPostProcessor;
 import com.github.christophpickl.seetheeye.api.configuration.Scope;
-import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
-import com.github.christophpickl.seetheeye.impl2.ReflectionUtil;
-import com.google.common.base.Preconditions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.inject.Singleton;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 
 @Deprecated
 class Bean implements BeanConfigurationPostProcessor {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Bean.class);
 
-    private final Class<?> beanType;
 
-    private final MetaClass metaClass;
+    public void addObserver(EventObserver observer) {
+//        LOG.debug("Adding observer {} for this bean {}", observer, this);
+//        observers.add(observer);
+    }
 
-    private Scope scope = Scope.PROTOTYPE;
+    public Collection<EventObserver> getObservers () {
+        return null;
+    }
 
-    private Optional<Class<?>> beanInterface = Optional.empty();
 
-    private Optional<Object> userDefinedInstance = Optional.empty();
 
-    private final boolean singletonAnnotationPresent;
 
-    private final List<Class<?>> dependencies;
 
-    private final Collection<EventObserver> observers = new LinkedHashSet<>();
+
 
     public Bean(Class<?> beanType) {
-        this.beanType = beanType;
-        this.metaClass = new MetaClass(Preconditions.checkNotNull(beanType));
-        this.singletonAnnotationPresent = metaClass.hasAnnotation(Singleton.class);
-        this.dependencies = metaClass.getConstructorParameters();
     }
 
     @Override public BeanConfigurationPostProcessor inScope(Scope scope) {
-        this.scope = Preconditions.checkNotNull(scope);
-        return this;
+        return null;
     }
 
     @Override public BeanConfigurationPostProcessor as(Class<?> beanInterface) {
-        Preconditions.checkNotNull(beanInterface);
-        if (!beanInterface.isInterface()) {
-            throw new SeeTheEyeException.ConfigInvalidException("Must be an interface type: " + beanInterface.getName());
-        }
-        if (!metaClass.isImplementing(beanInterface)) {
-            throw new SeeTheEyeException.ConfigInvalidException("Bean '" + metaClass.getName() + "' does not implement interface: " + beanInterface.getName());
-        }
-
-        this.beanInterface = Optional.of(beanInterface);
-        return this;
+        return null;
     }
 
     public MetaClass getMetaClass() {
-        return metaClass;
+        return null;
     }
 
     public Optional<Class<?>> getBeanInterface() {
-        return beanInterface;
+        return null;
     }
 
 
     public <T> T newInstance(List<Object> arguments) {
-        return (T) ReflectionUtil.instantiate(metaClass.getConstructor(), arguments.toArray());
+        return null;
     }
 
     public Scope getScope() {
-        return scope;
+        return null;
     }
 
     public Optional<Object> getUserDefinedInstance() {
-        return userDefinedInstance;
+        return null;
     }
 
     public void setUserDefinedInstance(Object userDefinedInstance) {
-        this.userDefinedInstance = Optional.of(Preconditions.checkNotNull(userDefinedInstance));
     }
 
 
     public boolean isSingletonAnnotationPresent() {
-        return singletonAnnotationPresent;
+        return false;
     }
 
     public List<Class<?>> getDependencies() {
-        return dependencies;
+        return null;
     }
 
     public Class<?> getBeanType() {
-        return beanType;
+        return null;
     }
 
-    public void addObserver(EventObserver observer) {
-        LOG.debug("Adding observer {} for this bean {}", observer, this);
-        observers.add(observer);
-    }
-
-    public Collection<EventObserver> getObservers () {
-        return observers;
-    }
 }

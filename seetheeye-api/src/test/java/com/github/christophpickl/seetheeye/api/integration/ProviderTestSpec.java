@@ -14,6 +14,12 @@ import static org.hamcrest.Matchers.sameInstance;
 @Test(groups = { "Integration", "Provider" })
 public abstract class ProviderTestSpec extends BaseTest {
 
+    // provider are always in scope SINGLETON!
+    // provider always registers as provider and type it provides -> add validation for that
+    // test for providing an interface -> also add validation for that
+    //    does NOT provide super types :-p
+
+
     static class EmptyProvider implements Provider<Beans.Empty> {
         static final Beans.Empty PROVIDING_INSTANCE = new Beans.Empty();
         @Override public Beans.Empty get() { return PROVIDING_INSTANCE; }

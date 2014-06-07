@@ -27,6 +27,7 @@ class PreValidator {
             declaration.getBeans().forEach(this::isBeanTypeAConcreteAccessibleClass);
             declaration.getBeans().forEach(this::isBeanTypeNotRegisteredMultipleTimes);
             declaration.getBeans().forEach(this::isBeanReallyImplementingRegisteredTypes);
+            declaration.getBeans().forEach(this::isBeanReallyImplementingRegisteredTypes);
 
             declaration.getInstances().forEach(this::isBeanReallyImplementingRegisteredTypes);
             // TODO MINOR would be nice to to have the config class name where the invalid stuff was configured

@@ -5,7 +5,7 @@ import com.github.christophpickl.seetheeye.api.configuration.BeanDeclaration;
 import com.github.christophpickl.seetheeye.api.configuration.ConfigurationDeclaration;
 import com.github.christophpickl.seetheeye.api.configuration.InstanceDeclaration;
 import com.github.christophpickl.seetheeye.api.configuration.Scope;
-import com.github.christophpickl.seetheeye.impl2.Context;
+import com.github.christophpickl.seetheeye.impl2.Resolver;
 import com.github.christophpickl.seetheeye.impl2.configuration.*;
 import com.github.christophpickl.seetheeye.impl2.validation.ConfigurationValidator;
 import org.slf4j.Logger;
@@ -17,21 +17,21 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 
-public class ContextFactoryImpl implements ContextFactory {
+public class ResolverFactoryImpl implements ResolverFactory {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ContextFactoryImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ResolverFactoryImpl.class);
 
     private final BeanAnalyzer analyzer;
     private final ConfigurationValidator validator;
 
     @Inject
-    public ContextFactoryImpl(BeanAnalyzer analyzer, ConfigurationValidator validator) {
+    public ResolverFactoryImpl(BeanAnalyzer analyzer, ConfigurationValidator validator) {
         this.analyzer = analyzer;
         this.validator = validator;
     }
 
 
-    public Context create(Collection<ConfigurationDeclaration> configurations) {
+    public Resolver create(Collection<ConfigurationDeclaration> configurations) {
         LOG.debug("create(configurations)");
         validator.validatePre(configurations);
 
@@ -42,7 +42,7 @@ public class ContextFactoryImpl implements ContextFactory {
         }
         DefinitionRepository repo = new DefinitionRepository(definitions);
         validator.validatePost(repo);
-        return new Context(repo);
+        return new Resolver(repo);
     }
 
     private Collection<InstanceDefinition<?>> createInstances(Collection<InstanceDeclaration> instances) {

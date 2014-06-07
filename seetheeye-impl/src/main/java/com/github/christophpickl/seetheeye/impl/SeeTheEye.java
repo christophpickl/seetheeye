@@ -1,6 +1,5 @@
 package com.github.christophpickl.seetheeye.impl;
 
-import com.github.christophpickl.seetheeye.api.configuration.Scope;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeApi;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
 import com.github.christophpickl.seetheeye.impl2.ReflectionUtil;
@@ -49,16 +48,7 @@ public class SeeTheEye implements SeeTheEyeApi, ObserverRepository {
     SeeTheEye(Collection<Bean> beans, Collection<Class<? extends Provider<?>>> providers) {
         this.beans = Preconditions.checkNotNull(beans);
         this.providers = Preconditions.checkNotNull(providers);
-        LOG.trace("new (beans={}, providers={})", Arrays.toString(beans.toArray()), Arrays.toString(providers.toArray()));
-        for (Bean bean : beans) {
-            if (bean.getBeanInterface().isPresent()) {
-                LOG.trace("Registering bean of type '{}' to interface type '{}'.",
-                    bean.getMetaClass().getName(), bean.getBeanInterface().get().getName());
-                beansByInterface.put(bean.getBeanInterface().get(), bean);
-            } else {
-                beansByType.put(bean.getMetaClass().getClazz(), bean);
-            }
-        }
+
         for (Class<? extends Provider<?>> provider : providers) {
             Class<?> providingBeanType = extractProviderTypeParameter(provider);
             providersByBeanType.put(providingBeanType, provider);
@@ -93,32 +83,7 @@ public class SeeTheEye implements SeeTheEyeApi, ObserverRepository {
             return provider.get();
         }
 
-        Optional<Bean> bean = findBean(beanType);
-        if (!bean.isPresent()) {
-            throw new SeeTheEyeException.UnresolvableBeanException(beanType);
-        }
-        return getRecursive(bean.get());
-    }
-
-    private <T> T getRecursive(Bean bean) {
-        LOG.debug("getRecursive(bean={})", bean);
-
-        if (bean.getUserDefinedInstance().isPresent()) {
-            LOG.trace("Returning user defined instance: {}", bean.getUserDefinedInstance().get());
-            return (T) bean.getUserDefinedInstance().get();
-        }
-        if (bean.isSingletonAnnotationPresent()) {
-            return lookupSingleton(bean);
-        }
-
-        return bean.getScope().actOn(new Scope.ScopeCallback<T>() {
-            @Override public T onPrototype() {
-                return lookupPrototype(bean);
-            }
-            @Override public T onSingelton() {
-                return lookupSingleton(bean);
-            }
-        });
+        return null;
     }
 
     private List<Object> createArguments(Bean bean) {
@@ -135,21 +100,16 @@ public class SeeTheEye implements SeeTheEyeApi, ObserverRepository {
                 // FIXME when to let loose of this (weak) reference??
                 continue;
             }
-            Optional<Bean> subBean = findBean(dependency);
+            Optional<Bean> subBean = null;
             if (!subBean.isPresent()) {
                 throw new SeeTheEyeException.DependencyResolveException(bean.getMetaClass().getClazz(), dependency);
             }
-            Object foundDependency = getRecursive(subBean.get());
+            Object foundDependency = null;
             arguments.add(foundDependency);
         }
         return arguments;
     }
 
-    private <T> T lookupPrototype(Bean bean) {
-        T instance = instantiateBean(bean);
-        LOG.trace("Returning prototype scoped new instance: {}", instance);
-        return instance;
-    }
 
     private <T> T instantiateBean(Bean bean) {
         List<Object> arguments = createArguments(bean);
@@ -169,28 +129,7 @@ public class SeeTheEye implements SeeTheEyeApi, ObserverRepository {
         }
     }
 
-    private <T> T lookupSingleton(Bean bean) {
-        Object cachedInstance = singletonsByBean.get(bean);
-        if (cachedInstance != null) {
-            LOG.trace("Returning cached singleton instance: {}", cachedInstance);
-            return (T) cachedInstance;
-        }
-        T instance = instantiateBean(bean);
-        singletonsByBean.put(bean, instance);
-        LOG.trace("Returning initially created singleton instance: {}", cachedInstance);
-        return instance;
-    }
 
-    private Optional<Bean> findBean(Class<?> beanType) {
-        Bean byConcreteType = beansByType.get(beanType);
-        if (byConcreteType != null) {
-            return Optional.of(byConcreteType);
-        }
-        if (beansByInterface.containsKey(beanType)) {
-            return Optional.of(beansByInterface.get(beanType));
-        }
-        return Optional.empty();
-    }
 
     // ObserverRepository
     @Override public <T> void dispatch(Class<T> type, T value) { // Event<T> event ... not used

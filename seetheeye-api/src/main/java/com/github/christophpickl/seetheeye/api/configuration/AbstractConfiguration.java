@@ -19,11 +19,11 @@ public abstract class AbstractConfiguration {
 
     protected abstract void configure();
 
-    // TODO should be package private
+    // TODO should be package private, but needed in impl module :(od
     public final ConfigurationDeclaration newDeclaration() {
         LOG.trace("new configuration for this: {}", getClass().getName());
         configure();
-        return new ConfigurationDeclaration(this, beans, instances);
+        return new ConfigurationDeclaration(beans, instances);
     }
 
     // TODO should be protected, but because of easier testing made public ;)

@@ -1,12 +1,12 @@
 package com.github.christophpickl.seetheeye.impl2.build;
 
 import com.github.christophpickl.seetheeye.api.configuration.ConfigurationDeclaration;
-import com.github.christophpickl.seetheeye.impl2.Context;
+import com.github.christophpickl.seetheeye.impl2.Resolver;
 
 import java.util.Collection;
 
-public interface ContextFactory {
+public interface ResolverFactory {
 
-    Context create(Collection<ConfigurationDeclaration> declarations);
+    Resolver create(Collection<ConfigurationDeclaration> declarations);
 
 }

@@ -9,22 +9,22 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-class PostDependencyCycleDetector {
+class PostValidator {
 
     private final DefinitionRepository repo;
     private final Collection<String> errors = new LinkedList<>();
     private final Set<Definition<?>> markedBeans = new LinkedHashSet<>();
 
-    PostDependencyCycleDetector(DefinitionRepository repo) {
+    PostValidator(DefinitionRepository repo) {
         this.repo = repo;
     }
 
     public Collection<String> detect() {
-        repo.getDefinitions().forEach(this::recursivelyCheckDefinition);
+        repo.getDefinitions().forEach(this::recursivelyCheckForCyclicDependency);
         return errors;
     }
 
-    private void recursivelyCheckDefinition(Definition definition) {
+    private void recursivelyCheckForCyclicDependency(Definition definition) {
         if (markedBeans.contains(definition)) {
             errors.add("Found cyclic dependency for bean: " + definition.getInstallType().getName());
             return;
@@ -39,7 +39,7 @@ class PostDependencyCycleDetector {
                 continue;
             }
             Definition dependencyDefinition = repo.lookupRegistered(dependency.getEnclosedClass());
-            recursivelyCheckDefinition(dependencyDefinition);
+            recursivelyCheckForCyclicDependency(dependencyDefinition);
         }
 
         markedBeans.remove(definition);
