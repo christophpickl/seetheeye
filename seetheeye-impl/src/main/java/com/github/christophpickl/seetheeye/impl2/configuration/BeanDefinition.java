@@ -12,6 +12,7 @@ public class BeanDefinition<T> implements Definition<T> {
 
     private final MetaClass installType;
     private final Collection<MetaClass> registrationTypes;
+
     private final Constructor<T> constructor;
     private final Collection<MetaClass> dependencies;
 

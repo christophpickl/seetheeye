@@ -20,7 +20,7 @@ class PostDependencyCycleDetector {
     }
 
     public Collection<String> detect() {
-        repo.getBeans().forEach(this::recursivelyCheckDefinition);
+        repo.getDefinitions().forEach(this::recursivelyCheckDefinition);
         return errors;
     }
 

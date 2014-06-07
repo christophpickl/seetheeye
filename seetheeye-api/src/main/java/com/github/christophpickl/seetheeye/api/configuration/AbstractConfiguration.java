@@ -15,6 +15,7 @@ public abstract class AbstractConfiguration {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractConfiguration.class);
 
     private final Collection<BeanDeclaration> beans = new LinkedList<>();
+    private final Collection<InstanceDeclaration> instances = new LinkedList<>();
 
     protected abstract void configure();
 
@@ -22,19 +23,21 @@ public abstract class AbstractConfiguration {
     public final ConfigurationDeclaration newDeclaration() {
         LOG.trace("new configuration for this: {}", getClass().getName());
         configure();
-        return new ConfigurationDeclaration(this, beans);
+        return new ConfigurationDeclaration(this, beans, instances);
     }
 
     // TODO should be protected, but because of easier testing made public ;)
     public final BeanBuilder installBean(Class<?> beanType) {
         LOG.debug("installBean(beanType={})", beanType.getName());
-        BeanDeclaration bean = new BeanDeclaration(new MetaClass(beanType));
-        beans.add(bean);
-        return new BeanBuilderImpl(bean);
+        BeanDeclaration declaration = new BeanDeclaration(new MetaClass(beanType));
+        beans.add(declaration);
+        return new BeanBuilderImpl(declaration);
     }
 
     public final InstanceBuilder installInstance(Object instance) {
-        throw new UnsupportedOperationException("not implemented");
+        InstanceDeclaration declaration = new InstanceDeclaration(instance);
+        instances.add(declaration);
+        return new InstanceBuilderImpl(declaration);
     }
 
     public final void installProvider(Class<? extends Provider<?>> providerType) {

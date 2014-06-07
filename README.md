@@ -7,7 +7,7 @@ FEATURES
 --------
 
 * Java Config
-    * Installing concrete bean classes (as interfaces)
+    * Installing concrete declaration classes (as interfaces)
     * Installing instances (as interfaces)
     * Installing providers
     * Installing by scopes (singleton, prototype) or use @Singleton
@@ -32,9 +32,9 @@ TODO
 * install sub configs
 * event bus
 * completely refactor internals and write proper unit tests
-* enhanced validation (check everything on startup, not when getting a specific bean)
+* enhanced validation (check everything on startup, not when getting a specific declaration)
 * @Qualifier
 * NOT YET: AOP/interceptor
 
 LUXURY:
-* let user define own bean name (just used for debugging/error reporting)
+* let user define own declaration name (just used for debugging/error reporting)

@@ -10,38 +10,41 @@ import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
-public class BeanDeclaration {
+public class BeanDeclaration implements Declaration {
 
     private static final Logger LOG = LoggerFactory.getLogger(BeanDeclaration.class);
 
     private static final Scope DEFAULT_SCOPE = Scope.PROTOTYPE;
 
-    private final MetaClass beanType;
+    private final MetaClass installType;
 
     private Scope scope;
 
     private Collection<MetaClass> registrationTypes = new LinkedHashSet<>();
 
-    public BeanDeclaration(MetaClass beanType) {
-        this.beanType = Preconditions.checkNotNull(beanType);
-        this.scope = beanType.isAnnotationPresent(Singleton.class) ? Scope.SINGLETON : DEFAULT_SCOPE;
+    public BeanDeclaration(MetaClass installType) {
+        this.installType = Preconditions.checkNotNull(installType);
+        this.scope = installType.isAnnotationPresent(Singleton.class) ? Scope.SINGLETON : DEFAULT_SCOPE;
     }
 
-    public void addRegistrationType(MetaClass registrationType) {
-        registrationTypes.add(registrationType);
+    public BeanDeclaration addRegistrationType(MetaClass registrationType) {
+        registrationTypes.add(Preconditions.checkNotNull(registrationType));
+        return this;
     }
 
+    @Override
     public Collection<MetaClass> getRegistrationTypes() {
         return registrationTypes;
     }
 
-    public MetaClass getBeanType() {
-        return beanType;
+    public MetaClass getInstallType() {
+        return installType;
     }
 
-    public void setScope(Scope scope) {
-        LOG.trace("setScope(scope={}) for beanType.name={} (old value={})", scope, beanType.getName(), this.scope);
+    public BeanDeclaration setScope(Scope scope) {
+        LOG.trace("setScope(scope={}) for installType.name={} (old value={})", scope, installType.getName(), this.scope);
         this.scope = Preconditions.checkNotNull(scope);
+        return this;
     }
 
     // TODO should be internal only
@@ -52,7 +55,7 @@ public class BeanDeclaration {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                .add("beanType", beanType)
+                .add("installType", installType)
                 .add("scope", scope)
                 .toString();
     }

@@ -6,6 +6,6 @@ public class TestableConfiguration extends AbstractConfiguration {
 
     @Override
     protected void configure() {
-
+        // not doing anything
     }
 }

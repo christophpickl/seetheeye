@@ -10,17 +10,17 @@ class BeanBuilderImpl implements BeanBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(BeanBuilderImpl.class);
 
-    private final BeanDeclaration bean;
+    private final BeanDeclaration declaration;
 
-    BeanBuilderImpl(BeanDeclaration bean) {
-        this.bean = bean;
+    BeanBuilderImpl(BeanDeclaration declaration) {
+        this.declaration = declaration;
     }
 
     @Override
     public BeanBuilder in(Scope scope) {
         Preconditions.checkNotNull(scope);
         LOG.trace("in(scope={})", scope);
-        bean.setScope(scope);
+        declaration.setScope(scope);
         return this;
     }
 
@@ -28,7 +28,7 @@ class BeanBuilderImpl implements BeanBuilder {
     public BeanBuilder as(Class<?> interfaceType) {
         Preconditions.checkNotNull(interfaceType);
         LOG.trace("as(interfaceType={})", interfaceType);
-        bean.addRegistrationType(new MetaClass(interfaceType));
+        declaration.addRegistrationType(new MetaClass(interfaceType));
         return this;
     }
 

@@ -3,6 +3,7 @@ package com.github.christophpickl.seetheeye.impl2.validation;
 import com.github.christophpickl.seetheeye.api.MetaClass;
 import com.github.christophpickl.seetheeye.api.configuration.BeanDeclaration;
 import com.github.christophpickl.seetheeye.api.configuration.ConfigurationDeclaration;
+import com.github.christophpickl.seetheeye.api.configuration.Declaration;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -10,6 +11,8 @@ import java.util.LinkedList;
 import java.util.Set;
 
 class PreValidator {
+
+    // TODO use message templates instead
 
     private final Collection<ConfigurationDeclaration> declarations;
     private final Collection<String> errorMessages = new LinkedList<>();
@@ -24,6 +27,8 @@ class PreValidator {
             declaration.getBeans().forEach(this::isBeanTypeAConcreteAccessibleClass);
             declaration.getBeans().forEach(this::isBeanTypeNotRegisteredMultipleTimes);
             declaration.getBeans().forEach(this::isBeanReallyImplementingRegisteredTypes);
+
+            declaration.getInstances().forEach(this::isBeanReallyImplementingRegisteredTypes);
             // TODO MINOR would be nice to to have the config class name where the invalid stuff was configured
 //            String configName = declaration.getOriginalUserConfiguration().getClass().getName();
 //            errorMessages.addAll(
@@ -33,7 +38,7 @@ class PreValidator {
     }
 
     private void isBeanTypeAConcreteAccessibleClass(BeanDeclaration declaration) {
-        MetaClass beanType = declaration.getBeanType();
+        MetaClass beanType = declaration.getInstallType();
         String errorMessagePrefix = "Invalid bean type " + beanType.getName() + "! Explanation: ";
         if (beanType.isInterface()) {
             errorMessages.add(errorMessagePrefix + "Interfaces are not allowed!");
@@ -45,7 +50,7 @@ class PreValidator {
     }
 
     private void isBeanTypeNotRegisteredMultipleTimes(BeanDeclaration declaration) {
-        MetaClass beanType = declaration.getBeanType();
+        MetaClass beanType = declaration.getInstallType();
         Collection<MetaClass> registrationTypes = declaration.getRegistrationTypes();
         if (!registrationTypes.isEmpty()) {
             for (MetaClass registrationType : registrationTypes) {
@@ -69,12 +74,12 @@ class PreValidator {
         }
     }
 
-    private void isBeanReallyImplementingRegisteredTypes(BeanDeclaration declaration) {
+    private void isBeanReallyImplementingRegisteredTypes(Declaration declaration) {
         Collection<MetaClass> registrationTypes = declaration.getRegistrationTypes();
         if (registrationTypes.isEmpty()) {
             return;
         }
-        MetaClass beanType = declaration.getBeanType();
+        MetaClass beanType = declaration.getInstallType();
         for (MetaClass registrationType : registrationTypes) {
             if (!registrationType.isInterface()) {
                 errorMessages.add("Beans can only be configured as interfaces! Given type was: " + registrationType.getName());
