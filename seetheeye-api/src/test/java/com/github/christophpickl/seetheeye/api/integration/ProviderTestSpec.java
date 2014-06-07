@@ -11,7 +11,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
 
-@Test
+@Test(groups = { "Integration", "Provider" })
 public abstract class ProviderTestSpec extends BaseTest {
 
     static class EmptyProvider implements Provider<Beans.Empty> {

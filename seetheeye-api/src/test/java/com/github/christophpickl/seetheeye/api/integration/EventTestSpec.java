@@ -11,7 +11,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 
-@Test
+@Test(groups = { "Integration", "Event" })
 public abstract class EventTestSpec extends BaseTest {
 
     static class Service {

@@ -12,7 +12,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
-@Test
+@Test(groups = { "Integration", "Scope" })
 public abstract class ScopeTestSpec extends BaseTest {
 
 

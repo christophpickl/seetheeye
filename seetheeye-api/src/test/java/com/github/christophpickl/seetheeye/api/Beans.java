@@ -1,8 +1,6 @@
 package com.github.christophpickl.seetheeye.api;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
 
 public final class Beans {
 
@@ -12,6 +10,7 @@ public final class Beans {
     // -===============================================================================================================-
 
     public static class Empty { }
+    public static class Empty2 { }
 
 
     public interface BeanInterface { }

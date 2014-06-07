@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 
-@Test
+@Test(groups = { "Integration" })
 public abstract class InjectTestSpec extends BaseTest {
 
     public void inject_usualUseCaseBeanARequiredBeanB_returnsAConstructedObjectGraph() {
@@ -31,11 +31,9 @@ public abstract class InjectTestSpec extends BaseTest {
         }).get(Beans.SingleConstructorWithoutInject.class).getSubBean(), notNullValue());
     }
 
-    @Test(expectedExceptions = SeeTheEyeException.DependencyResolveException.class)
+    @Test(expectedExceptions = SeeTheEyeException.ConfigInvalidException.class)
     public void inject_usingInterfaceAsADependencyButNotRegistered_throwsException() {
-        newEye(config -> config.installBean(Beans.BeanRequiringInterface.class)).get(Beans.BeanRequiringInterface.class);
-        // NO! seetheeye does not support bean validation on context creation via build()
-//        newEye(config -> config.installBean(Beans.BeanRequiringInterface.class));
+        newEye(config -> config.installBean(Beans.BeanRequiringInterface.class));
     }
 
     @Test(expectedExceptions = SeeTheEyeException.ConfigInvalidException.class)

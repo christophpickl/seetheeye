@@ -8,6 +8,7 @@ import com.github.christophpickl.seetheeye.impl2.BeanDefinitionX;
 import com.github.christophpickl.seetheeye.impl2.Context;
 import com.github.christophpickl.seetheeye.impl2.DefinitionRepository;
 import com.github.christophpickl.seetheeye.impl2.SingletonBeanDefinitionX;
+import com.github.christophpickl.seetheeye.impl2.validation.ConfigurationValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,10 +22,10 @@ public class ContextFactoryImpl implements ContextFactory {
     private static final Logger LOG = LoggerFactory.getLogger(ContextFactoryImpl.class);
 
     private final BeanAnalyzer analyzer;
-    private final BeanValidator validator;
+    private final ConfigurationValidator validator;
 
     @Inject
-    public ContextFactoryImpl(BeanAnalyzer analyzer, BeanValidator validator) {
+    public ContextFactoryImpl(BeanAnalyzer analyzer, ConfigurationValidator validator) {
         this.analyzer = analyzer;
         this.validator = validator;
     }

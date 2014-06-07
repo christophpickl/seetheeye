@@ -1,7 +1,11 @@
 package com.github.christophpickl.seetheeye.impl2;
 
 import com.github.christophpickl.seetheeye.api.SeeTheEyeApi;
-import com.github.christophpickl.seetheeye.impl2.build.*;
+import com.github.christophpickl.seetheeye.impl2.build.BeanAnalyzer;
+import com.github.christophpickl.seetheeye.impl2.build.ContextFactory;
+import com.github.christophpickl.seetheeye.impl2.build.ContextFactoryImpl;
+import com.github.christophpickl.seetheeye.impl2.build.SeeTheEyeBuilder;
+import com.github.christophpickl.seetheeye.impl2.validation.ConfigurationValidator;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -30,7 +34,7 @@ public class SeeTheEye implements SeeTheEyeApi {
         protected void configure() {
             bind(SeeTheEyeBuilder.class);
             bind(BeanAnalyzer.class);
-            bind(BeanValidator.class);
+            bind(ConfigurationValidator.class);
             bind(ContextFactory.class).to(ContextFactoryImpl.class);
         }
     }

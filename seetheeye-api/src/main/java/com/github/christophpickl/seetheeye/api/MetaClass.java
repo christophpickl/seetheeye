@@ -28,13 +28,6 @@ public class MetaClass {
         return innerType;
     }
 
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this)
-                .add("innerType", innerType)
-                .toString();
-    }
-
     public String getName() {
         return innerType.getName();
     }
@@ -72,4 +65,28 @@ public class MetaClass {
     public boolean isAnnotationPresent(Class<? extends Annotation> annotation) {
         return innerType.isAnnotationPresent(annotation);
     }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("innerType", innerType.getName())
+                .add("isAbstract", isAbstract)
+                .add("isInnerClass", isInnerClass)
+                .toString();
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MetaClass that = (MetaClass) o;
+        return Objects.equal(this.innerType, that.innerType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(innerType);
+    }
+
 }

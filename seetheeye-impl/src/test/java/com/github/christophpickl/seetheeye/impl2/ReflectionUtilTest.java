@@ -1,4 +1,4 @@
-package com.github.christophpickl.seetheeye.impl2.integration;
+package com.github.christophpickl.seetheeye.impl2;
 
 import org.testng.annotations.Test;
 
