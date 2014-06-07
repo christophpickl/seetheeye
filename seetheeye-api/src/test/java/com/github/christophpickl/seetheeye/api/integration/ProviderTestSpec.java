@@ -2,32 +2,20 @@ package com.github.christophpickl.seetheeye.api.integration;
 
 import com.github.christophpickl.seetheeye.api.SeeTheEyeApi;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import javax.inject.Provider;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.Matchers.*;
 
 @Test(groups = { "Integration", "Provider" })
 public abstract class ProviderTestSpec extends BaseTest {
 
-    // provider are always in scope SINGLETON!
-    // provider always registers as provider and type it provides -> add validation for that
-    // test for providing an interface -> also add validation for that
-    //    does NOT provide super types :-p
-
-
-    static class EmptyProvider implements Provider<Empty> {
-        static final Empty PROVIDING_INSTANCE = new Empty();
-        @Override public Empty get() { return PROVIDING_INSTANCE; }
-    }
-
-    static class Empty2Provider implements Provider<Empty2> {
-        static final Empty2 PROVIDING_INSTANCE = new Empty2();
-        @Override public Empty2 get() { return PROVIDING_INSTANCE; }
+    @BeforeMethod
+    public void resetConstructorCalledCounter() {
+        Empty2Provider.constructorCalled = 0;
     }
 
     public void installProvider_forBeanTypeXAndRequestForBeanX_returnInstanceProvidedByCustomProvider() {
@@ -35,9 +23,25 @@ public abstract class ProviderTestSpec extends BaseTest {
                 sameInstance(EmptyProvider.PROVIDING_INSTANCE));
     }
 
-    public void installProvider_requestInstanceOfGivenProvider_returnProviderAsExpected() {
+    public void installProvider_getProviderHimselfInsteadProvidingType_returnProviderAsExpected() {
         assertThat(newEye(config -> config.installProvider(EmptyProvider.class)).get(EmptyProvider.class),
                 notNullValue());
+    }
+
+    public void installProvider_registerForInterfaceType_returnProviderInternalProvidingInstance() {
+        assertThat(newEye(config -> config.installProvider(InterfaceProvider.class)).get(Interface.class),
+                instanceOf(InterfaceProvider.PROVIDING_INSTANCE.getClass()));
+    }
+
+    // unfortunately TestNG does not yet support java8 method references :(
+    @Test(dependsOnMethods = { "installProvider_getProviderHimselfInsteadProvidingType_returnProviderAsExpected" })
+    public void installProvider_gettingProviderAndProvidedEntityTwoTimes_returnsSameProviderInstanceAgainAsInScopeSingleton() {
+        SeeTheEyeApi eye = newEye(config -> config.installProvider(Empty2Provider.class));
+        eye.get(Empty2Provider.class);
+        eye.get(Empty2Provider.class);
+        eye.get(Empty2.class);
+        eye.get(Empty2.class);
+        assertThat(Empty2Provider.constructorCalled, equalTo(1));
     }
 
     public void installProvider_forTwoDifferentBeanTypes_doesntMixUpBecauseOfTypeErasure() {
@@ -56,7 +60,43 @@ public abstract class ProviderTestSpec extends BaseTest {
         newEye(config -> {
             config.installBean(Empty.class);
             config.installProvider(EmptyProvider.class);
-        }).get(Empty.class);
+        });
+    }
+
+    @Test(expectedExceptions = SeeTheEyeException.UnresolvableBeanException.class)
+    public void installProvider_providingTypeBySubInterfaceAndGetBySuperInterface_throwUnresolvableException() {
+        newEye(config -> config.installProvider(InterfaceSubProvider.class)).get(Interface.class);
+    }
+
+
+    private static class EmptyProvider implements Provider<Empty> {
+        static final Empty PROVIDING_INSTANCE = new Empty();
+        @Override public Empty get() { return PROVIDING_INSTANCE; }
+    }
+
+    private static class Empty2Provider implements Provider<Empty2> {
+        static int constructorCalled; // watch out to reset the variable before/after running test against this
+        static final Empty2 PROVIDING_INSTANCE = new Empty2();
+        public Empty2Provider() {
+            constructorCalled++;
+        }
+        @Override public Empty2 get() { return PROVIDING_INSTANCE; }
+    }
+
+    private static class InterfaceProvider implements Provider<Interface> {
+        static final InterfaceImpl PROVIDING_INSTANCE = new InterfaceImpl();
+        @Override
+        public Interface get() {
+            return PROVIDING_INSTANCE;
+        }
+    }
+
+    private static class InterfaceSubProvider implements Provider<InterfaceSub> {
+        static final InterfaceSubImpl PROVIDING_INSTANCE = new InterfaceSubImpl();
+        @Override
+        public InterfaceSub get() {
+            return PROVIDING_INSTANCE;
+        }
     }
 
 }

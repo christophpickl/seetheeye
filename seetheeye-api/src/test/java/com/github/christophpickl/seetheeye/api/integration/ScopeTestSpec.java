@@ -17,7 +17,7 @@ public abstract class ScopeTestSpec extends BaseTest {
 
 
     @BeforeMethod
-    public void init() {
+    public void resetConstructorCalledCounter() {
         ConstructorCounting.constructorCalled = 0;
         ConstructorCountingWithSingletonAnnotation.constructorCalled = 0;
     }

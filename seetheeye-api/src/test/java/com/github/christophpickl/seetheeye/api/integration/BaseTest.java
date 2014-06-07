@@ -19,6 +19,9 @@ abstract class BaseTest {
     protected static class Empty2 { }
 
     protected interface Interface { }
-    protected  static class InterfaceImpl implements Interface { }
+    protected static class InterfaceImpl implements Interface { }
     protected interface Interface2 { }
+
+    protected interface InterfaceSub extends Interface { }
+    protected static class InterfaceSubImpl implements InterfaceSub { }
 }
