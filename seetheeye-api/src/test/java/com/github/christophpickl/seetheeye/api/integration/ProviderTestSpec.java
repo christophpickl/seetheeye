@@ -55,6 +55,15 @@ public abstract class ProviderTestSpec extends BaseTest {
         assertThat(eye.get(Empty2Provider.class), instanceOf(Empty2Provider.class));
     }
 
+    public void installProvider_providerWithDependencies_resolvesDependenciesAndReturnsInstance() {
+        SeeTheEyeApi eye = newEye(config -> {
+            config.installBean(Empty2.class);
+            config.installProvider(EmptyProviderWithDependencyForEmpty2.class);
+        });
+        assertThat(eye.get(EmptyProviderWithDependencyForEmpty2.class).subBean, instanceOf(Empty2.class));
+        assertThat(eye.get(Empty.class), sameInstance(EmptyProviderWithDependencyForEmpty2.PROVIDING_INSTANCE));
+    }
+
     @Test(expectedExceptions = SeeTheEyeException.ConfigInvalidException.class)
     public void installProvider_sameTypeAsBeanAndAsProvider_throwException() {
         newEye(config -> {
@@ -63,7 +72,8 @@ public abstract class ProviderTestSpec extends BaseTest {
         });
     }
 
-    @Test(expectedExceptions = SeeTheEyeException.UnresolvableBeanException.class)
+    @Test(expectedExceptions = SeeTheEyeException.UnresolvableBeanException.class,
+          dependsOnMethods = "installProvider_forBeanTypeXAndRequestForBeanX_returnInstanceProvidedByCustomProvider")
     public void installProvider_providingTypeBySubInterfaceAndGetBySuperInterface_throwUnresolvableException() {
         newEye(config -> config.installProvider(InterfaceSubProvider.class)).get(Interface.class);
     }
@@ -97,6 +107,13 @@ public abstract class ProviderTestSpec extends BaseTest {
         public InterfaceSub get() {
             return PROVIDING_INSTANCE;
         }
+    }
+
+    private static class EmptyProviderWithDependencyForEmpty2 implements Provider<Empty> {
+        static final Empty PROVIDING_INSTANCE = new Empty();
+        final Empty2 subBean;
+        EmptyProviderWithDependencyForEmpty2(Empty2 subBean) { this.subBean = subBean; }
+        @Override public Empty get() { return PROVIDING_INSTANCE; }
     }
 
 }
