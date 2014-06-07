@@ -18,6 +18,7 @@ public final class Beans {
     public interface BeanInterface2 { }
 
     public static class BeanInterfaceImpl implements BeanInterface { }
+    public static class BeanInterfaceImplImpl extends BeanInterfaceImpl { }
     public static class BeanInterfaceSubImpl implements BeanInterfaceSub { }
     public static class BeanInterfaceImpl2 implements BeanInterface { }
     public static class BeanMultiInterfaceImpl implements BeanInterface, BeanInterface2 { }

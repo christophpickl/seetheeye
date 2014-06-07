@@ -1,4 +1,4 @@
-package com.github.christophpickl.seetheeye.api;
+package com.github.christophpickl.seetheeye.api.configuration;
 
 public enum Scope {
 

@@ -1,8 +1,8 @@
 package com.github.christophpickl.seetheeye.impl2.validation;
 
-import com.github.christophpickl.seetheeye.api.ConfigurationDefinition;
+import com.github.christophpickl.seetheeye.api.configuration.ConfigurationDeclaration;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
-import com.github.christophpickl.seetheeye.impl2.DefinitionRepository;
+import com.github.christophpickl.seetheeye.impl2.configuration.DefinitionRepository;
 import com.google.common.base.Joiner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,11 +14,11 @@ public class ConfigurationValidator {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationValidator.class);
 
-    public void validatePre(Collection<ConfigurationDefinition> definitions) {
-        LOG.debug("validatePre(definitions)");
+    public void validatePre(Collection<ConfigurationDeclaration> declarations) {
+        LOG.debug("validatePre(declarations)");
 
         Collection<String> errorMessages = new LinkedList<>();
-        errorMessages.addAll(new PreValidator(definitions).detect());
+        errorMessages.addAll(new PreValidator(declarations).detect());
         throwExceptionIfErrorExists(errorMessages);
     }
 

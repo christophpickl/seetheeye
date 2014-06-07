@@ -1,52 +1,90 @@
 package com.github.christophpickl.seetheeye.impl2.validation;
 
-import com.github.christophpickl.seetheeye.api.BeanDefinition;
-import com.github.christophpickl.seetheeye.api.ConfigurationDefinition;
 import com.github.christophpickl.seetheeye.api.MetaClass;
+import com.github.christophpickl.seetheeye.api.configuration.BeanDeclaration;
+import com.github.christophpickl.seetheeye.api.configuration.ConfigurationDeclaration;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 class PreValidator {
 
-    private final Collection<ConfigurationDefinition> definitions;
+    private final Collection<ConfigurationDeclaration> declarations;
+    private final Collection<String> errorMessages = new LinkedList<>();
+    private final Set<MetaClass> registeredTypes = new HashSet<>();
 
-    public PreValidator(Collection<ConfigurationDefinition> definitions) {
-        this.definitions = definitions;
+    public PreValidator(Collection<ConfigurationDeclaration> declarations) {
+        this.declarations = declarations;
     }
 
     Collection<String> detect() {
-        Collection<String> errorMessages = new LinkedList<>();
-
-        for (ConfigurationDefinition definition : definitions) {
-            String configName = definition.getOriginalUserConfiguration().getClass().getName();
-            errorMessages.addAll(validateBeanDefinitions(definition.getBeans())
-                    .stream().map(beanError -> beanError + " (Defining configuration was: " + configName + ")").collect(Collectors.toList()));
+        for (ConfigurationDeclaration declaration : declarations) {
+            declaration.getBeans().forEach(this::isBeanTypeAConcreteAccessibleClass);
+            declaration.getBeans().forEach(this::isBeanTypeNotRegisteredMultipleTimes);
+            declaration.getBeans().forEach(this::isBeanReallyImplementingRegisteredTypes);
+            // TODO MINOR would be nice to to have the config class name where the invalid stuff was configured
+//            String configName = declaration.getOriginalUserConfiguration().getClass().getName();
+//            errorMessages.addAll(
+//            .stream().map(beanError -> beanError + " (Defining configuration was: " + configName + ")").collect(Collectors.toList()));
         }
         return errorMessages;
     }
 
-    private Collection<String> validateBeanDefinitions(Collection<BeanDefinition> beans) {
-        Collection<String> errorMessages = new LinkedList<>();
-        Set<MetaClass> registeredBeanTypes = new HashSet<>();
-        for (BeanDefinition bean : beans) {
-            MetaClass beanType = bean.getBeanType();
-            if (registeredBeanTypes.contains(beanType)) {
+    private void isBeanTypeAConcreteAccessibleClass(BeanDeclaration declaration) {
+        MetaClass beanType = declaration.getBeanType();
+        String errorMessagePrefix = "Invalid bean type " + beanType.getName() + "! Explanation: ";
+        if (beanType.isInterface()) {
+            errorMessages.add(errorMessagePrefix + "Interfaces are not allowed!");
+        } else if (beanType.isAbstract()) {
+            errorMessages.add(errorMessagePrefix + "Abstract classes are not allowed!");
+        } else if (beanType.isInnerClass()) {
+            errorMessages.add(errorMessagePrefix + "Inner classes are not allowed!");
+        }
+    }
+
+    private void isBeanTypeNotRegisteredMultipleTimes(BeanDeclaration declaration) {
+        MetaClass beanType = declaration.getBeanType();
+        Collection<MetaClass> registrationTypes = declaration.getRegistrationTypes();
+        if (!registrationTypes.isEmpty()) {
+            for (MetaClass registrationType : registrationTypes) {
+                if (!registrationType.isInterface()) {
+                    errorMessages.add("Given a non-interface for the 'as-type' for bean: " + beanType.getName());
+                    continue;
+                }
+                if (registeredTypes.contains(registrationType)) {
+                    errorMessages.add("Duplicate bean definition '" + beanType.getName() + "' " +
+                            "for interface '" + registrationType.getName() + "'!");
+                }
+                registeredTypes.add(registrationType);
+            }
+
+        } else {
+            // only registered as bean by itself, without any given as-interface.
+            if (registeredTypes.contains(beanType)) {
                 errorMessages.add("Duplicate bean definition for '" + beanType.getName() + "'!");
             }
-            registeredBeanTypes.add(beanType);
-            String errorMessagePrefix = "Invalid bean type " + beanType.getName() + "! Explanation: ";
-            if (beanType.isInterface()) {
-                errorMessages.add(errorMessagePrefix + "Interfaces are not allowed!");
-            } else if (beanType.isAbstract()) {
-                errorMessages.add(errorMessagePrefix + "Abstract classes are not allowed!");
-            } else if (beanType.isInnerClass()) {
-                errorMessages.add(errorMessagePrefix + "Inner classes are not allowed!");
+            registeredTypes.add(beanType);
+        }
+    }
+
+    private void isBeanReallyImplementingRegisteredTypes(BeanDeclaration declaration) {
+        Collection<MetaClass> registrationTypes = declaration.getRegistrationTypes();
+        if (registrationTypes.isEmpty()) {
+            return;
+        }
+        MetaClass beanType = declaration.getBeanType();
+        for (MetaClass registrationType : registrationTypes) {
+            if (!registrationType.isInterface()) {
+                errorMessages.add("Beans can only be configured as interfaces! Given type was: " + registrationType.getName());
+                continue;
+            }
+            if (!beanType.isImplementing(registrationType)) {
+                errorMessages.add("Given bean '" + beanType.getName() + "' does not implement interface '" + registrationType.getName() + "'!");
             }
         }
-        return errorMessages;
+
     }
+
 }

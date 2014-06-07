@@ -79,6 +79,20 @@ public abstract class InstallBeanTestSpec extends BaseTest {
         assertThat(eye.get(Beans.BeanMultiInterfaceImpl.class), instanceOf(Beans.BeanMultiInterfaceImpl.class));
     }
 
+    public void installBeanAs_anInterfaceAndAsASecondInterface_worksForBothSeperately() {
+        SeeTheEyeApi eye = newEye(config -> {
+            config.installBean(Beans.BeanMultiInterfaceImpl.class)
+                .as(Beans.BeanInterface.class)
+                .as(Beans.BeanInterface2.class);
+        });
+        assertThat(eye.get(Beans.BeanInterface.class), instanceOf(Beans.BeanMultiInterfaceImpl.class));
+        assertThat(eye.get(Beans.BeanInterface2.class), instanceOf(Beans.BeanMultiInterfaceImpl.class));
+    }
+
+    public void installBeanAs_implementingInterfaceViaParentType_worksAlthoughNotDefinedByItself() {
+        newEye(config -> config.installBean(Beans.BeanInterfaceImplImpl.class).as(Beans.BeanInterface.class));
+    }
+
     @Test(expectedExceptions = SeeTheEyeException.ConfigInvalidException.class)
     public void installBeanAs_nonInterfaceType_throwException() {
         newEye(config -> config.installBean(Beans.BeanInterfaceImpl.class).as(Beans.Empty.class));
@@ -110,6 +124,12 @@ public abstract class InstallBeanTestSpec extends BaseTest {
         }).get(Beans.BeanInterface.class); // only registered as BeanInterfaceSub, requesting by parent type not supported
     }
 
+    @Test(expectedExceptions = SeeTheEyeException.UnresolvableBeanException.class)
+    public void installBeanAs_getByConcreteType_throwExceptionAsOnlyAccessibleViaRegisteredInterface() {
+        newEye(config ->
+            config.installBean(Beans.BeanInterfaceImpl.class).as(Beans.BeanInterface.class)
+        ).get(Beans.BeanInterfaceImpl.class);
+    }
 
     // INSTALL INSTANCE
     // -===============================================================================================================-

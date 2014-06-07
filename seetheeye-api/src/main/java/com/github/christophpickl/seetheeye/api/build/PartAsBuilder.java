@@ -1,7 +1,7 @@
 package com.github.christophpickl.seetheeye.api.build;
 
-public interface PartAsBuilder {
+public interface PartAsBuilder<T> {
 
-    void as(Class<?> interfaceType);
+    T as(Class<?> interfaceType);
 
 }

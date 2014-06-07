@@ -2,6 +2,7 @@ package com.github.christophpickl.seetheeye.api;
 
 import javax.inject.Provider;
 
+@Deprecated
 public interface Config {
 
     BeanConfigurationPostProcessor installConcreteBean(Class<?> beanType);

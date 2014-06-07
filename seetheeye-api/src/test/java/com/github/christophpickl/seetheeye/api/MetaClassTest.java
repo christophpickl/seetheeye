@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 import javax.inject.Inject;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 
 @Test
@@ -24,6 +25,16 @@ public class MetaClassTest {
         assertDeclaredConstructorsAnnotatedWithSize(TwoConstructorsOneWithInjectArgAndOneWithInjectWithoutArgs.class, 2);
     }
 
+    public void isImplementing() {
+        assertIsImplementing(TypeImpl.class, Type.class, true);
+        assertIsImplementing(TypeImplSub.class, Type.class, true);
+        assertIsImplementing(TypeImpl.class, Type2.class, false);
+    }
+
+    private static void assertIsImplementing(Class<?> clazz, Class<?> interfase, boolean expectedResult) {
+        assertThat(testee(clazz).isImplementing(testee(interfase)), equalTo(expectedResult));
+    }
+
     private static void assertDeclaredConstructorsAnnotatedWithSize(Class<?> clazz, int expectedSize) {
         assertThat(testee(clazz).getDeclaredConstructorsAnnotatedWith(Inject.class), hasSize(expectedSize));
     }
@@ -40,12 +51,17 @@ public class MetaClassTest {
     static class ExplicitDefaultConstructor {
         ExplicitDefaultConstructor() {}
     }
-    static class SingleConstructorWithInject{
+    static class SingleConstructorWithInject {
         @Inject SingleConstructorWithInject() {}
     }
     static class TwoConstructorsOneWithInjectArgAndOneWithInjectWithoutArgs {
         @Inject TwoConstructorsOneWithInjectArgAndOneWithInjectWithoutArgs(Object param) {}
         @Inject TwoConstructorsOneWithInjectArgAndOneWithInjectWithoutArgs() {}
     }
+
+    interface Type { }
+    interface Type2 { }
+    static class TypeImpl implements Type { }
+    static class TypeImplSub extends TypeImpl { }
 
 }

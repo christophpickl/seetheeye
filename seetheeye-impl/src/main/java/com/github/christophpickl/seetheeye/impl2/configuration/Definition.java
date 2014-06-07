@@ -1,14 +1,14 @@
-package com.github.christophpickl.seetheeye.impl2;
+package com.github.christophpickl.seetheeye.impl2.configuration;
 
 import com.github.christophpickl.seetheeye.api.MetaClass;
 
 import java.util.Collection;
 
-public interface DefinitionX<T> {
+public interface Definition<T> {
 
     MetaClass getInstallType();
 
-    MetaClass getRegistrationType();
+    Collection<MetaClass> getRegistrationTypesOrInstallType();
 
     Collection<MetaClass> getDependencies();
 

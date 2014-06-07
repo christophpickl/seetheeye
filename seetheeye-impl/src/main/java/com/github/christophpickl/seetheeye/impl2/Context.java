@@ -2,6 +2,8 @@ package com.github.christophpickl.seetheeye.impl2;
 
 import com.github.christophpickl.seetheeye.api.MetaClass;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
+import com.github.christophpickl.seetheeye.impl2.configuration.Definition;
+import com.github.christophpickl.seetheeye.impl2.configuration.DefinitionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,11 +26,13 @@ public class Context {
         if (!repo.isRegistered(beanType)) {
             throw new SeeTheEyeException.UnresolvableBeanException(beanType);
         }
-        DefinitionX bean = repo.lookupRegistered(beanType);
+        Definition bean = repo.lookupRegistered(beanType);
         return (T) bean.instance(createArguments(bean.getDependencies()));
     }
 
     private Collection<Object> createArguments(Collection<MetaClass> dependencies) {
-        return dependencies.stream().map(d -> (Object)get(d.getEnclosedClass())).collect(Collectors.toCollection(LinkedList::new));
+        // (Object) cast IS necessary! dont delete it.
+        return dependencies.stream().map(d -> (Object) get(d.getEnclosedClass())).collect(Collectors.toCollection(LinkedList::new));
     }
+
 }

@@ -1,8 +1,8 @@
 package com.github.christophpickl.seetheeye.impl2.validation;
 
 import com.github.christophpickl.seetheeye.api.MetaClass;
-import com.github.christophpickl.seetheeye.impl2.DefinitionRepository;
-import com.github.christophpickl.seetheeye.impl2.DefinitionX;
+import com.github.christophpickl.seetheeye.impl2.configuration.Definition;
+import com.github.christophpickl.seetheeye.impl2.configuration.DefinitionRepository;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -13,7 +13,7 @@ class PostDependencyCycleDetector {
 
     private final DefinitionRepository repo;
     private final Collection<String> errors = new LinkedList<>();
-    private final Set<DefinitionX<?>> markedBeans = new LinkedHashSet<>();
+    private final Set<Definition<?>> markedBeans = new LinkedHashSet<>();
 
     PostDependencyCycleDetector(DefinitionRepository repo) {
         this.repo = repo;
@@ -24,12 +24,13 @@ class PostDependencyCycleDetector {
         return errors;
     }
 
-    private void recursivelyCheckDefinition(DefinitionX definition) {
+    private void recursivelyCheckDefinition(Definition definition) {
         if (markedBeans.contains(definition)) {
-            errors.add("Found cyclic dependency for bean: " + definition.getRegistrationType().getName());
+            errors.add("Found cyclic dependency for bean: " + definition.getInstallType().getName());
             return;
         }
         markedBeans.add(definition);
+
         Collection<MetaClass> dependencies = definition.getDependencies();
         for (MetaClass dependency : dependencies) {
             if (!repo.isRegistered(dependency.getEnclosedClass())) {
@@ -37,9 +38,10 @@ class PostDependencyCycleDetector {
                         " for bean: " + definition.getInstallType());
                 continue;
             }
-            DefinitionX dependencyDefinition = repo.lookupRegistered(dependency.getEnclosedClass());
+            Definition dependencyDefinition = repo.lookupRegistered(dependency.getEnclosedClass());
             recursivelyCheckDefinition(dependencyDefinition);
         }
+
         markedBeans.remove(definition);
     }
 

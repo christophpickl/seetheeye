@@ -1,13 +1,13 @@
-package com.github.christophpickl.seetheeye.api;
+package com.github.christophpickl.seetheeye.api.configuration;
 
 import java.util.Collection;
 
-public class ConfigurationDefinition {
+public class ConfigurationDeclaration {
 
     private final AbstractConfiguration originalUserConfiguration;
-    private final Collection<BeanDefinition> beans;
+    private final Collection<BeanDeclaration> beans;
 
-    public ConfigurationDefinition(AbstractConfiguration originalUserConfiguration, Collection<BeanDefinition> beans) {
+    public ConfigurationDeclaration(AbstractConfiguration originalUserConfiguration, Collection<BeanDeclaration> beans) {
         this.originalUserConfiguration = originalUserConfiguration;
         this.beans = beans;
     }
@@ -16,7 +16,7 @@ public class ConfigurationDefinition {
         return originalUserConfiguration;
     }
 
-    public final Collection<BeanDefinition> getBeans() {
+    public final Collection<BeanDeclaration> getBeans() {
         return beans;
     }
 

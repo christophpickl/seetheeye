@@ -1,6 +1,6 @@
 package com.github.christophpickl.seetheeye.api.integration;
 
-import com.github.christophpickl.seetheeye.api.Scope;
+import com.github.christophpickl.seetheeye.api.configuration.Scope;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeApi;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -31,7 +31,7 @@ public abstract class ScopeTestSpec extends BaseTest {
     }
 
     public void installBeanInScope_asSingleton_constructBeanOnlyOnce() {
-        SeeTheEyeApi eye = newEye(config -> config.installBean(ConstructorCounting.class).inScope(Scope.SINGLETON));
+        SeeTheEyeApi eye = newEye(config -> config.installBean(ConstructorCounting.class).in(Scope.SINGLETON));
         eye.get(ConstructorCounting.class);
         eye.get(ConstructorCounting.class);
         assertThat(ConstructorCounting.constructorCalled, equalTo(1));
@@ -49,6 +49,13 @@ public abstract class ScopeTestSpec extends BaseTest {
             config.installBean(WithInjected.class);
             config.installBean(Beans.Empty.class);
         }).get(WithInjected.class).subBean, notNullValue());
+    }
+
+    public void installBeanInScope_beanAnnotatedWithSingletonButConfigureAsPrototype_constructTwoInstances() {
+        SeeTheEyeApi eye = newEye(config -> config.installBean(ConstructorCountingWithSingletonAnnotation.class).in(Scope.PROTOTYPE));
+        eye.get(ConstructorCountingWithSingletonAnnotation.class);
+        eye.get(ConstructorCountingWithSingletonAnnotation.class);
+        assertThat(ConstructorCountingWithSingletonAnnotation.constructorCalled, equalTo(2));
     }
 
     static class ConstructorCounting {

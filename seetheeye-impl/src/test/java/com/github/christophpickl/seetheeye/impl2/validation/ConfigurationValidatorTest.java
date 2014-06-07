@@ -1,6 +1,8 @@
 package com.github.christophpickl.seetheeye.impl2.validation;
 
 import com.github.christophpickl.seetheeye.api.*;
+import com.github.christophpickl.seetheeye.api.configuration.BeanDeclaration;
+import com.github.christophpickl.seetheeye.api.configuration.ConfigurationDeclaration;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
@@ -35,11 +37,11 @@ public class ConfigurationValidatorTest {
     }
 
     private void validate(Class<?>... beanTypes) {
-        Collection<BeanDefinition> beans = new LinkedList<>();
+        Collection<BeanDeclaration> beans = new LinkedList<>();
         for (Class<?> beanType : beanTypes) {
-            beans.add(new BeanDefinition(new MetaClass(beanType)));
+            beans.add(new BeanDeclaration(new MetaClass(beanType)));
         }
-        new ConfigurationValidator().validatePre(Arrays.asList(new ConfigurationDefinition(new TestableConfiguration(), beans)));
+        new ConfigurationValidator().validatePre(Arrays.asList(new ConfigurationDeclaration(new TestableConfiguration(), beans)));
     }
 
     static class ConcreteStaticNestedClass { }

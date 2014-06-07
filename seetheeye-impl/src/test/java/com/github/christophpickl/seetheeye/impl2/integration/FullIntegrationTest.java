@@ -3,7 +3,7 @@ package com.github.christophpickl.seetheeye.impl2.integration;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeApi;
 import com.github.christophpickl.seetheeye.impl2.Log4j;
 import com.github.christophpickl.seetheeye.impl2.SeeTheEye;
-import com.github.christophpickl.seetheeye.api.AbstractConfiguration;
+import com.github.christophpickl.seetheeye.api.configuration.AbstractConfiguration;
 import org.testng.annotations.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

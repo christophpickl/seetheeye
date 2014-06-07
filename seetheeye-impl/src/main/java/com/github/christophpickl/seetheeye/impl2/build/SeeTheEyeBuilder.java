@@ -1,7 +1,7 @@
 package com.github.christophpickl.seetheeye.impl2.build;
 
-import com.github.christophpickl.seetheeye.api.AbstractConfiguration;
-import com.github.christophpickl.seetheeye.api.ConfigurationDefinition;
+import com.github.christophpickl.seetheeye.api.configuration.AbstractConfiguration;
+import com.github.christophpickl.seetheeye.api.configuration.ConfigurationDeclaration;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeApi;
 import com.github.christophpickl.seetheeye.impl2.SeeTheEye;
 import com.google.common.collect.Lists;
@@ -24,12 +24,12 @@ public class SeeTheEyeBuilder {
     }
 
     public SeeTheEyeApi build() {
-        Collection<ConfigurationDefinition> definitions = new LinkedList<>();
+        Collection<ConfigurationDeclaration> declarations = new LinkedList<>();
         for (AbstractConfiguration config : configs) {
-            ConfigurationDefinition definition = config.newDefinition();
-            definitions.add(definition);
+            ConfigurationDeclaration declaration = config.newDeclaration();
+            declarations.add(declaration);
         }
-        return new SeeTheEye(contextFactory.create(definitions));
+        return new SeeTheEye(contextFactory.create(declarations));
     }
 
     public SeeTheEyeBuilder add(AbstractConfiguration config, AbstractConfiguration... moreConfigs) {

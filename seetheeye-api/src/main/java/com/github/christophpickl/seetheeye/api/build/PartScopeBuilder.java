@@ -1,9 +1,9 @@
 package com.github.christophpickl.seetheeye.api.build;
 
-import com.github.christophpickl.seetheeye.api.Scope;
+import com.github.christophpickl.seetheeye.api.configuration.Scope;
 
-public interface PartScopeBuilder {
+public interface PartScopeBuilder<T> {
 
-    void inScope(Scope scope);
+    T in(Scope scope);
 
 }

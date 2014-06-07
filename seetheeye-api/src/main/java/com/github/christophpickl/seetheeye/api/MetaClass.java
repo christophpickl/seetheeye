@@ -12,28 +12,28 @@ import java.util.stream.Collectors;
 
 public class MetaClass {
 
-    private final Class<?> innerType;
+    private final Class<?> enclosedClass;
     private final boolean isAbstract;
     private final boolean isInnerClass;
 
-    public MetaClass(Class<?> innerType) {
-        this.innerType = innerType;
-        int modifiers = innerType.getModifiers();
+    public MetaClass(Class<?> enclosedClass) {
+        this.enclosedClass = enclosedClass;
+        int modifiers = enclosedClass.getModifiers();
         this.isAbstract = Modifier.isAbstract(modifiers);
         boolean isStatic = Modifier.isStatic(modifiers);
-        this.isInnerClass = innerType.getDeclaringClass() != null && !isStatic;
+        this.isInnerClass = enclosedClass.getDeclaringClass() != null && !isStatic;
     }
 
     public Class<?> getEnclosedClass() {
-        return innerType;
+        return enclosedClass;
     }
 
     public String getName() {
-        return innerType.getName();
+        return enclosedClass.getName();
     }
 
     public boolean isInterface() {
-        return innerType.isInterface();
+        return enclosedClass.isInterface();
     }
 
     public boolean isAbstract() {
@@ -45,7 +45,7 @@ public class MetaClass {
     }
 
     public Collection<Constructor> getDeclaredConstructors() {
-        return Arrays.asList(innerType.getDeclaredConstructors());
+        return Arrays.asList(enclosedClass.getDeclaredConstructors());
     }
 
     public Collection<Constructor> getDeclaredConstructorsAnnotatedWith(Class<? extends Annotation> constructorAnnotation) {
@@ -63,13 +63,21 @@ public class MetaClass {
     }
 
     public boolean isAnnotationPresent(Class<? extends Annotation> annotation) {
-        return innerType.isAnnotationPresent(annotation);
+        return enclosedClass.isAnnotationPresent(annotation);
+    }
+
+    public boolean isImplementing(MetaClass checkInterface) {
+        if (!checkInterface.isInterface()) {
+            throw new IllegalArgumentException("Can only check against interfaces, " +
+                "but given type '" + checkInterface.getName() + "' is not an interface!");
+        }
+        return checkInterface.getEnclosedClass().isAssignableFrom(enclosedClass);
     }
 
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                .add("innerType", innerType.getName())
+                .add("enclosedClass", enclosedClass.getName())
                 .add("isAbstract", isAbstract)
                 .add("isInnerClass", isInnerClass)
                 .toString();
@@ -81,12 +89,12 @@ public class MetaClass {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MetaClass that = (MetaClass) o;
-        return Objects.equal(this.innerType, that.innerType);
+        return Objects.equal(this.enclosedClass, that.enclosedClass);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(innerType);
+        return Objects.hashCode(enclosedClass);
     }
 
 }
