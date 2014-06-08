@@ -11,7 +11,7 @@ import java.util.Arrays;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-public class BeanAnalyzerTest {
+public class TypeAnalyzerTest {
 
     @Test public void findDefaultConstructor() throws Exception {
         assertFoundConstructorFor(Empty.class);
@@ -39,7 +39,7 @@ public class BeanAnalyzerTest {
     }
 
     private static Constructor findConstructor(Class<?> type) {
-        return new BeanAnalyzer().findProperConstructor(new MetaClass(type));
+        return new TypeAnalyzer().findProperConstructor(new MetaClass(type));
     }
 
 

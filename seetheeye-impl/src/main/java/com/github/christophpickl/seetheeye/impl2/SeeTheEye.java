@@ -22,6 +22,11 @@ public class SeeTheEye implements SeeTheEyeApi {
         return resolver.get(beanType);
     }
 
+    @Override
+    public <T> T getGeneric(Class<T> beanType, Class<?>... typeArguments) {
+        throw new UnsupportedOperationException("not yet implemented");
+    }
+
     public static SeeTheEyeBuilder builder() {
         Injector injector = Guice.createInjector(new GuiceModule());
         return injector.getInstance(SeeTheEyeBuilder.class);
@@ -32,8 +37,11 @@ public class SeeTheEye implements SeeTheEyeApi {
         @Override
         protected void configure() {
             bind(SeeTheEyeBuilder.class);
-            bind(BeanAnalyzer.class);
+            bind(TypeAnalyzer.class);
             bind(ConfigurationValidator.class);
+            bind(BeanDefinitionMapper.class);
+            bind(InstanceDefinitionMapper.class);
+            bind(ProviderDefinitionMapper.class);
             bind(ResolverFactory.class).to(ResolverFactoryImpl.class);
         }
     }

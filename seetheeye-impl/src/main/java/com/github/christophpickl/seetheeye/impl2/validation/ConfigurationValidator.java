@@ -14,18 +14,18 @@ public class ConfigurationValidator {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationValidator.class);
 
-    public void validatePre(Collection<ConfigurationDeclaration> declarations) {
-        LOG.debug("validatePre(declarations)");
+    public void validatePre(Collection<ConfigurationDeclaration> configurations) {
+        LOG.info("validatePre(configurations.size={})", configurations.size());
 
         Collection<String> errorMessages = new LinkedList<>();
-        errorMessages.addAll(new PreValidator(declarations).detect());
+        errorMessages.addAll(new PreValidator(configurations).detect());
         throwExceptionIfErrorExists(errorMessages);
     }
 
-    public void validatePost(DefinitionRepository repo) {
-        LOG.debug("validatePost(repo)");
+    public void validatePost(DefinitionRepository repository) {
+        LOG.info("validatePost(repository)");
         Collection<String> errorMessages = new LinkedList<>();
-        errorMessages.addAll(new PostValidator(repo).detect());
+        errorMessages.addAll(new PostValidator(repository).detect());
         throwExceptionIfErrorExists(errorMessages);
     }
 

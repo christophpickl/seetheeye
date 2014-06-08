@@ -20,12 +20,18 @@ public abstract class ProviderTestSpec extends BaseTest {
 
     public void installProvider_forBeanTypeXAndRequestForBeanX_returnInstanceProvidedByCustomProvider() {
         assertThat(newEye(config -> config.installProvider(EmptyProvider.class)).get(Empty.class),
-                sameInstance(EmptyProvider.PROVIDING_INSTANCE));
+            sameInstance(EmptyProvider.PROVIDING_INSTANCE));
     }
 
     public void installProvider_getProviderHimselfInsteadProvidingType_returnProviderAsExpected() {
         assertThat(newEye(config -> config.installProvider(EmptyProvider.class)).get(EmptyProvider.class),
-                instanceOf(EmptyProvider.class));
+            instanceOf(EmptyProvider.class));
+    }
+
+
+    public void installProvider_getProviderHimselfViaInterface_returnProviderAsExpected() {
+        assertThat(newEye(config -> config.installProvider(EmptyProvider.class)).getGeneric(Provider.class, Empty.class),
+            instanceOf(EmptyProvider.class));
     }
 
     public void installProvider_registerForInterfaceType_returnProviderInternalProvidingInstance() {
@@ -53,24 +59,38 @@ public abstract class ProviderTestSpec extends BaseTest {
         assertThat(eye.get(Empty2.class), instanceOf(Empty2.class));
     }
 
-    public void installProvider_providerWithDependencies_resolvesDependenciesAndReturnsInstance() {
+    public void installProvider_providerWithDependenciesForSomeBean_resolvesDependenciesCorrectly() {
         SeeTheEyeApi eye = newEye(config -> {
             config.installBean(Empty2.class);
             config.installProvider(EmptyProviderWithDependencyForEmpty2.class);
         });
         assertThat(eye.get(EmptyProviderWithDependencyForEmpty2.class).subBean, instanceOf(Empty2.class));
-        assertThat(eye.get(Empty.class), sameInstance(EmptyProviderWithDependencyForEmpty2.PROVIDING_INSTANCE));
     }
 
-    public void installProvider_providerWithProviderDependency_resolvesDependencyAndReturnsInstance() {
+    public void installProvider_providerWithProviderInterfaceDependency_resolvesDependencyAndReturnsInstance() {
         SeeTheEyeApi eye = newEye(config -> {
-            config.installProvider(Empty2Provider.class);
-            config.installProvider(ProviderWithDependencyForProvider.class);
+            config.installProvider(InterfaceProvider.class);
+            config.installProvider(ProviderWithDependencyForProviderInterface.class);
         });
-        assertThat(eye.get(Empty.class), sameInstance(ProviderWithDependencyForProvider.PROVIDING_INSTANCE));
-        assertThat(eye.get(ProviderWithDependencyForProvider.class).subBean, instanceOf(Empty2Provider.class));
+        assertThat(eye.get(ProviderWithDependencyForProviderInterface.class).subBean, instanceOf(InterfaceProvider.class));
     }
 
+    public void installProvider_providerWithProviderImplDependency_resolvesDependencyAndReturnsInstance() {
+        SeeTheEyeApi eye = newEye(config -> {
+            config.installProvider(InterfaceProvider.class);
+            config.installProvider(ProviderWithDependencyForProviderImpl.class);
+        });
+        assertThat(eye.get(ProviderWithDependencyForProviderImpl.class).subBean, instanceOf(InterfaceProvider.class));
+    }
+
+    // FIXME fails, because we really need to setup a proper dependency graph...
+    public void installProvider_providerWithProviderImplDependencyInstalledInOtherOrder_resolvesDependencyAndReturnsInstance() {
+        SeeTheEyeApi eye = newEye(config -> {
+            config.installProvider(ProviderWithDependencyForProviderImpl.class);
+            config.installProvider(InterfaceProvider.class);
+        });
+        assertThat(eye.get(ProviderWithDependencyForProviderImpl.class).subBean, instanceOf(InterfaceProvider.class));
+    }
 
     @Test(expectedExceptions = SeeTheEyeException.ConfigInvalidException.class)
     public void installProvider_sameTypeAsBeanAndAsProvider_throwException() {
@@ -126,17 +146,21 @@ public abstract class ProviderTestSpec extends BaseTest {
     }
 
     private static class EmptyProviderWithDependencyForEmpty2 implements Provider<Empty> {
-        static final Empty PROVIDING_INSTANCE = new Empty();
         final Empty2 subBean;
         EmptyProviderWithDependencyForEmpty2(Empty2 subBean) { this.subBean = subBean; }
-        @Override public Empty get() { return PROVIDING_INSTANCE; }
+        @Override public Empty get() { return null; }
     }
 
-    private static class ProviderWithDependencyForProvider implements Provider<Empty> {
-        static final Empty PROVIDING_INSTANCE = new Empty();
-        final Provider<Empty2> subBean;
-        ProviderWithDependencyForProvider(Provider<Empty2> subBean) { this.subBean = subBean; }
-        @Override public Empty get() { return PROVIDING_INSTANCE; }
+    private static class ProviderWithDependencyForProviderInterface implements Provider<Empty> {
+        final Provider<Interface> subBean;
+        ProviderWithDependencyForProviderInterface(Provider<Interface> subBean) { this.subBean = subBean; }
+        @Override public Empty get() { return null; }
+    }
+
+    private static class ProviderWithDependencyForProviderImpl implements Provider<Empty> {
+        final InterfaceProvider subBean;
+        ProviderWithDependencyForProviderImpl(InterfaceProvider subBean) { this.subBean = subBean; }
+        @Override public Empty get() { return new Empty(); }
     }
 
 
@@ -151,5 +175,7 @@ public abstract class ProviderTestSpec extends BaseTest {
         ProviderBDependsOnProviderA(ProviderADependsOnProviderB subBean) { this.subBean = subBean; }
         @Override public Empty2 get() { return new Empty2(); }
     }
+
+    // TODO what if Provider bean has @Inject for another's Providee type?
 
 }

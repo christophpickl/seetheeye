@@ -27,6 +27,7 @@ public class SeeTheEyeBuilder {
     }
 
     public SeeTheEyeApi build() {
+        LOG.info("build()");
         Collection<ConfigurationDeclaration> declarations = configurations.stream()
                 .map(Configuration::toDeclaration).collect(Collectors.toList());
         return new SeeTheEye(resolverFactory.create(declarations));
@@ -34,7 +35,7 @@ public class SeeTheEyeBuilder {
 
     public SeeTheEyeBuilder add(Configuration config, Configuration... moreConfigs) {
         Collection<Configuration> configsToAdd = Lists.asList(config, moreConfigs);
-        LOG.trace("Adding following configuration(s): {}", Arrays.toString(configsToAdd.toArray()));
+        LOG.debug("Adding following configuration(s): {}", Arrays.toString(configsToAdd.toArray()));
         configurations.addAll(configsToAdd);
         return this;
     }

@@ -56,7 +56,7 @@ public abstract class Configuration {
 
     // TODO should be package private, but needed in impl module :(od
     public final ConfigurationDeclaration toDeclaration() {
-        LOG.trace("new configuration for this: {}", getClass().getName());
+        LOG.trace("configuring configuration: {}", getClass().getName());
         configure();
         return new ConfigurationDeclaration(beans, instances, providers);
     }

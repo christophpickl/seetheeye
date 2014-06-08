@@ -14,9 +14,9 @@ import java.util.LinkedList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class BeanAnalyzer {
+public class TypeAnalyzer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BeanAnalyzer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TypeAnalyzer.class);
 
     public Constructor findProperConstructor(MetaClass beanType) {
         LOG.trace("findProperConstructor(beanType={})", beanType);

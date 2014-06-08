@@ -23,7 +23,7 @@ public class Resolver {
     }
 
     public <T> T get(Class<T> beanType) {
-        LOG.debug("get(beanType={})", beanType.getName());
+        LOG.info("get(beanType={})", beanType.getName());
         if (!repo.isRegistered(beanType)) {
             throw new SeeTheEyeException.UnresolvableBeanException(beanType);
         }

@@ -32,7 +32,7 @@ abstract class AbstractBuildingDefinition<T> implements Definition<T> {
     public String toString() {
         return Objects.toStringHelper(this)
             .add("installType", installType)
-//            .add("dependencies", dependencies)
+            .add("dependencies", dependencies)
             .toString();
     }
 }

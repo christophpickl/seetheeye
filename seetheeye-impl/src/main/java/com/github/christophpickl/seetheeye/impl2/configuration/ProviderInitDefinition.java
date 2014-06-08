@@ -4,6 +4,6 @@ import javax.inject.Provider;
 
 public interface ProviderInitDefinition<X, T extends Provider<?>> extends Definition<X> {
 
-    void initProvider(T provider);
+    void initProviderInstance(T provider);
 
 }

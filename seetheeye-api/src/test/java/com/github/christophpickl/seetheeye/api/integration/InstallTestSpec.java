@@ -161,6 +161,18 @@ public abstract class InstallTestSpec extends BaseTest {
         newEye(config -> config.installInstance(new InterfaceImpl())).get(Interface.class);
     }
 
+    // GET GENERIC
+    // -===============================================================================================================-
+
+    public void getGeneric_works() {
+        newEye(config -> config.installBean(GenericInterfaceString.class)).getGeneric(GenericInterface.class, String.class);
+    }
+
+    @Test(expectedExceptions = SeeTheEyeException.UnresolvableBeanException.class)
+    public void getGeneric_throwsException() {
+        newEye(config -> config.installBean(GenericInterfaceString.class)).getGeneric(GenericInterface.class, Integer.class);
+    }
+
     // SUB CONFIGURATION
     // -===============================================================================================================-
 
@@ -173,6 +185,8 @@ public abstract class InstallTestSpec extends BaseTest {
 
     private interface BeanInterfaceSub extends Interface { }
 
+    private interface GenericInterface<T> { }
+    private static class GenericInterfaceString implements GenericInterface<String> { }
 
     private static class BeanInterfaceImplImpl extends InterfaceImpl { }
     private static class BeanInterfaceSubImpl implements BeanInterfaceSub { }

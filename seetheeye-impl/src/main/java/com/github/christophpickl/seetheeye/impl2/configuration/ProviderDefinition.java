@@ -1,6 +1,7 @@
 package com.github.christophpickl.seetheeye.impl2.configuration;
 
 import com.github.christophpickl.seetheeye.api.MetaClass;
+import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
 import com.github.christophpickl.seetheeye.impl2.Resolver;
 import com.github.christophpickl.seetheeye.impl2.build.InstantiatonTemplate;
 import com.google.common.base.Objects;
@@ -36,11 +37,16 @@ public class ProviderDefinition<T> implements ProviderInitDefinition<T, Provider
         return provideeType;
     }
 
-    // TODO this is actually bad design, but it's hard to do it the right way...
+    // TODO this is actually bad design, but it's hard to do it the right way... copy'n'paste from ProviderBeanDefinition
+    // ===> introduce new base class!
     @Override
-    public void initProvider(Provider<?> provider) {
+    public void initProviderInstance(Provider<?> provider) {
         Preconditions.checkNotNull(provider);
         LOG.debug("Initializing provider instance: {}", provider);
+        if (this.provider != null) {
+            throw new SeeTheEyeException.InternalError("Provider was already initialized with " + this.provider +
+                " but tried to initialize with: " + provider);
+        }
         this.provider = (Provider<T>) provider;
     }
 

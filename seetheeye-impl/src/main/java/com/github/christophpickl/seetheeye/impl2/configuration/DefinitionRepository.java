@@ -20,7 +20,7 @@ public class DefinitionRepository {
         this.definitions = definitions;
         for (Definition<?> definition : definitions) {
             for (MetaClass registrationType : definition.getRegistrationTypesOrInstallType()) {
-                LOG.trace("Registering " + definition.getInstallType().getName() + " as type: " + registrationType.getName());
+                LOG.debug("Registering " + definition.getInstallType().getName() + " as type: " + registrationType.getName());
                 Definition<?> previousStoredDefinition = definitionsByRegistrationType.put(registrationType.getEnclosedClass(), definition);
                 if (previousStoredDefinition != null) {
                     throw new IllegalStateException("Internal error occured due to multiple registration types! Seems as validation does not work properly :( " +

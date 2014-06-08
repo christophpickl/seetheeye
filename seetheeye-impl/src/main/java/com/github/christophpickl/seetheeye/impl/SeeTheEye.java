@@ -1,6 +1,5 @@
 package com.github.christophpickl.seetheeye.impl;
 
-import com.github.christophpickl.seetheeye.api.ReflectionException;
 import com.github.christophpickl.seetheeye.api.ReflectionUtil;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeApi;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
@@ -50,6 +49,11 @@ public class SeeTheEye implements SeeTheEyeApi, ObserverRepository {
             return provider.get();
         }
 
+        return null;
+    }
+
+    @Override
+    public <T> T getGeneric(Class<T> beanType, Class<?>... typeArguments) {
         return null;
     }
 
