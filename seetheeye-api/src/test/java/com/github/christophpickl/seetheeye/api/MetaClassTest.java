@@ -31,6 +31,11 @@ public class MetaClassTest {
         assertIsImplementing(TypeImpl.class, Type2.class, false);
     }
 
+    public void getFirstTypeParameter_forGenericInterfaceImplWithString_returnStringClass() {
+        assertThat(testee(GenericInterfaceImplWithString.class).getSingleTypeParamaterOfSingleInterface().getEnclosedClass(),
+            equalTo(String.class));
+    }
+
     private static void assertIsImplementing(Class<?> clazz, Class<?> interfase, boolean expectedResult) {
         assertThat(testee(clazz).isImplementing(testee(interfase)), equalTo(expectedResult));
     }
@@ -47,21 +52,24 @@ public class MetaClassTest {
         return new MetaClass(clazz);
     }
 
-    static class Empty { }
-    static class ExplicitDefaultConstructor {
+    private static class Empty { }
+    private static class ExplicitDefaultConstructor {
         ExplicitDefaultConstructor() {}
     }
-    static class SingleConstructorWithInject {
+    private static class SingleConstructorWithInject {
         @Inject SingleConstructorWithInject() {}
     }
-    static class TwoConstructorsOneWithInjectArgAndOneWithInjectWithoutArgs {
+    private static class TwoConstructorsOneWithInjectArgAndOneWithInjectWithoutArgs {
         @Inject TwoConstructorsOneWithInjectArgAndOneWithInjectWithoutArgs(Object param) {}
         @Inject TwoConstructorsOneWithInjectArgAndOneWithInjectWithoutArgs() {}
     }
 
-    interface Type { }
-    interface Type2 { }
-    static class TypeImpl implements Type { }
-    static class TypeImplSub extends TypeImpl { }
+    private interface Type { }
+    private interface Type2 { }
+    private static class TypeImpl implements Type { }
+    private static class TypeImplSub extends TypeImpl { }
+
+    private static class GenericInterfaceImplWithString implements GenericInterface<String> { }
+    private static interface GenericInterface<T> { }
 
 }

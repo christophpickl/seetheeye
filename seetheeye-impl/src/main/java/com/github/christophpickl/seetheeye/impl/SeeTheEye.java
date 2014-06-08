@@ -1,12 +1,9 @@
 package com.github.christophpickl.seetheeye.impl;
 
+import com.github.christophpickl.seetheeye.api.ReflectionException;
+import com.github.christophpickl.seetheeye.api.ReflectionUtil;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeApi;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
-import com.github.christophpickl.seetheeye.impl2.ReflectionUtil;
-import com.google.common.base.Preconditions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import javax.enterprise.event.Event;
 import javax.inject.Provider;
@@ -18,14 +15,6 @@ import java.util.*;
 @Deprecated
 public class SeeTheEye implements SeeTheEyeApi, ObserverRepository {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SeeTheEye.class);
-
-    private final Collection<Bean> beans;
-    private final Collection<Class<? extends Provider<?>>> providers;
-
-    private final Map<Class<?>, Bean> beansByType = new HashMap<>();
-    private final Map<Class<?>, Bean> beansByInterface = new HashMap<>();
-    private final Map<Bean, Object> singletonsByBean = new HashMap<>();
     // TODO refactor! introduce own providerRepository datastructure. contains singleton instances of each provider (doesnt need to be recreated each time)
     private final Map<Class<?>, Class<? extends Provider<?>>> providersByBeanType = new HashMap<>();
     private final Map<Class<?>, Collection<EventObserverInstance>> observerInstancesByEventType = new HashMap<>();
@@ -46,39 +35,17 @@ public class SeeTheEye implements SeeTheEyeApi, ObserverRepository {
     }
 
     SeeTheEye(Collection<Bean> beans, Collection<Class<? extends Provider<?>>> providers) {
-        this.beans = Preconditions.checkNotNull(beans);
-        this.providers = Preconditions.checkNotNull(providers);
 
-        for (Class<? extends Provider<?>> provider : providers) {
-            Class<?> providingBeanType = extractProviderTypeParameter(provider);
-            providersByBeanType.put(providingBeanType, provider);
-        }
-    }
-
-    // also needs to be refactored
-    static Class<?> extractProviderTypeParameter(Class<? extends Provider<?>> provider) {
-        // TODO ParameterizedTypeImpl is deprecated
-        ParameterizedTypeImpl providerInterfaceGeneric = (ParameterizedTypeImpl) provider.getGenericInterfaces()[0];
-        return (Class<?>) providerInterfaceGeneric.getActualTypeArguments()[0];
     }
 
     public static SeeTheEyeBuilder prepare() {
-//        TODO enable guice: return Guice.createInjector(new SeeTheEyeGuiceModule()).getInstance(SeeTheEyeBuilder.class);
         return new SeeTheEyeBuilder();
     }
 
     public <T> T get(Class<T> beanType) {
-        LOG.debug("get(beanType={})", beanType.getName());
-        if (Provider.class.isAssignableFrom(beanType)) {
-            Class<? extends Provider<Object>> providerType = (Class<? extends Provider<Object>>)beanType;
-            // TODO figure out proper constructor for provider
-            LOG.trace("Returning provider: {}", providerType.getName());
-            return (T) ReflectionUtil.instantiate(providerType.getDeclaredConstructors()[0]);
-        }
         if (providersByBeanType.containsKey(beanType)) {
             Class<? extends Provider<T>> providerType = (Class<? extends Provider<T>>) providersByBeanType.get(beanType);
             // TODO figure out proper constructor for provider
-            LOG.trace("Returning provider instance by: {}", providerType.getName());
             Provider<T> provider = (Provider<T>) ReflectionUtil.instantiate(providerType.getDeclaredConstructors()[0]);
             return provider.get();
         }
@@ -90,12 +57,9 @@ public class SeeTheEye implements SeeTheEyeApi, ObserverRepository {
         List<Class<?>> dependencies = bean.getDependencies();
         List<Object> arguments = new ArrayList<>(dependencies.size());
         for (Class<?> dependency : dependencies) {
-            LOG.trace("Recursively getting dependency bean of type: {}", dependency.getName());
             if (Event.class == dependency) {
                 // FIXME hardcoded String observer
                 Class<?> eventType = String.class;
-                LOG.trace("Adding event dispatcher for dependency of type {} for bean: {}",
-                        dependency.getName(), bean);
                 arguments.add(new EventDispatcher(SeeTheEye.this, eventType)); // TODO no generics?!
                 // FIXME when to let loose of this (weak) reference??
                 continue;
@@ -123,7 +87,6 @@ public class SeeTheEye implements SeeTheEyeApi, ObserverRepository {
             if  (!observerInstancesByEventType.containsKey(observer.getEventType())) {
                 observerInstancesByEventType.put(observer.getEventType(), new LinkedHashSet<>());
             }
-            LOG.trace("Adding instance observer {} for bean: {}", observer, bean);
             observerInstancesByEventType.get(observer.getEventType())
                     .add(new EventObserverInstance(observer, instance));
         }

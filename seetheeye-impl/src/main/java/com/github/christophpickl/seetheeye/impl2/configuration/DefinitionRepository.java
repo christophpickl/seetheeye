@@ -18,10 +18,10 @@ public class DefinitionRepository {
 
     public DefinitionRepository(Collection<Definition<?>> definitions) {
         this.definitions = definitions;
-        for (Definition<?> bean : definitions) {
-            for (MetaClass registrationType : bean.getRegistrationTypesOrInstallType()) {
-                LOG.trace("Registering " + bean.getInstallType().getName() + " as type: " + registrationType.getName());
-                definitionsByRegistrationType.put(registrationType.getEnclosedClass(), bean);
+        for (Definition<?> definition : definitions) {
+            for (MetaClass registrationType : definition.getRegistrationTypesOrInstallType()) {
+                LOG.trace("Registering " + definition.getInstallType().getName() + " as type: " + registrationType.getName());
+                definitionsByRegistrationType.put(registrationType.getEnclosedClass(), definition);
             }
         }
     }

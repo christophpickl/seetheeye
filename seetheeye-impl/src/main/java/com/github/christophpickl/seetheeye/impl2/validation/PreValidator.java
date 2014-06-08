@@ -1,10 +1,13 @@
 package com.github.christophpickl.seetheeye.impl2.validation;
 
 import com.github.christophpickl.seetheeye.api.MetaClass;
+import com.github.christophpickl.seetheeye.api.ReflectionException;
 import com.github.christophpickl.seetheeye.api.configuration.BeanDeclaration;
 import com.github.christophpickl.seetheeye.api.configuration.ConfigurationDeclaration;
 import com.github.christophpickl.seetheeye.api.configuration.Declaration;
+import com.github.christophpickl.seetheeye.api.configuration.ProviderDeclaration;
 
+import javax.inject.Provider;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -25,17 +28,40 @@ class PreValidator {
     Collection<String> detect() {
         for (ConfigurationDeclaration declaration : declarations) {
             declaration.getBeans().forEach(this::isBeanTypeAConcreteAccessibleClass);
-            declaration.getBeans().forEach(this::isBeanTypeNotRegisteredMultipleTimes);
-            declaration.getBeans().forEach(this::isBeanReallyImplementingRegisteredTypes);
-            declaration.getBeans().forEach(this::isBeanReallyImplementingRegisteredTypes);
+            declaration.getBeans().forEach(this::isNotRegisteredMultipleTimes);
+            declaration.getBeans().forEach(this::isReallyImplementingRegisteredTypes);
 
-            declaration.getInstances().forEach(this::isBeanReallyImplementingRegisteredTypes);
+            declaration.getInstances().forEach(this::isReallyImplementingRegisteredTypes);
+            declaration.getInstances().forEach(this::isNotRegisteredMultipleTimes);
+
+            declaration.getProviders().forEach(this::isValidProvider);
+
             // TODO MINOR would be nice to to have the config class name where the invalid stuff was configured
 //            String configName = declaration.getOriginalUserConfiguration().getClass().getName();
-//            errorMessages.addAll(
-//            .stream().map(beanError -> beanError + " (Defining configuration was: " + configName + ")").collect(Collectors.toList()));
+//            errorMessages.addAll(.stream().map(beanError -> beanError + " (Defining configuration was: " + configName + ")").collect(Collectors.toList()));
         }
         return errorMessages;
+    }
+
+    private void isValidProvider(ProviderDeclaration declaration) {
+        MetaClass providerType = declaration.getInstallType();
+        if (!Provider.class.isAssignableFrom(providerType.getEnclosedClass())) {
+            errorMessages.add("Configured provider does not implement the " + Provider.class.getName() + " interface!");
+            return;
+        }
+        MetaClass provideeType;
+        try {
+            // just try it and if it fails report with cumulative errors
+            provideeType = providerType.getSingleTypeParamaterOfSingleInterface();
+        } catch (ReflectionException.InvalidTypeException e) {
+            errorMessages.add(e.getMessage());
+            return;
+        }
+        if (registeredTypes.contains(provideeType)) {
+            // TODO copy'n'paste error message
+            errorMessages.add("Duplicate bean definition for '" + provideeType.getName() + "'!");
+        }
+        registeredTypes.add(provideeType);
     }
 
     private void isBeanTypeAConcreteAccessibleClass(BeanDeclaration declaration) {
@@ -50,7 +76,7 @@ class PreValidator {
         }
     }
 
-    private void isBeanTypeNotRegisteredMultipleTimes(BeanDeclaration declaration) {
+    private void isNotRegisteredMultipleTimes(Declaration declaration) {
         MetaClass beanType = declaration.getInstallType();
         Collection<MetaClass> registrationTypes = declaration.getRegistrationTypes();
         if (!registrationTypes.isEmpty()) {
@@ -75,7 +101,7 @@ class PreValidator {
         }
     }
 
-    private void isBeanReallyImplementingRegisteredTypes(Declaration declaration) {
+    private void isReallyImplementingRegisteredTypes(Declaration declaration) {
         Collection<MetaClass> registrationTypes = declaration.getRegistrationTypes();
         if (registrationTypes.isEmpty()) {
             return;

@@ -1,6 +1,6 @@
-package com.github.christophpickl.seetheeye.api.test;
+package com.github.christophpickl.seetheeye.api.configuration;
 
-import com.github.christophpickl.seetheeye.api.configuration.Configuration;
+import com.github.christophpickl.seetheeye.api.test.Action1;
 
 public class TestableActionfiedConfiguration extends Configuration {
 

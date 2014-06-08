@@ -1,6 +1,5 @@
 package com.github.christophpickl.seetheeye.impl;
 
-import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,7 +7,9 @@ import javax.enterprise.event.Observes;
 import javax.inject.Provider;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 @Deprecated
 public class SeeTheEyeBuilder {
@@ -33,7 +34,7 @@ public class SeeTheEyeBuilder {
             providers.addAll(config.getInstalledProviders());
         }
         addOptionalObserves(beans);
-        postValidate(beans, providers);
+//        postValidate(beans, providers);
         return new SeeTheEye(beans, providers);
     }
 
@@ -52,14 +53,5 @@ public class SeeTheEyeBuilder {
 
     }
 
-    private void postValidate(Collection<Bean> beans, Collection<Class<? extends Provider<?>>> providers) {
-        Map<Class<?>, Bean> beansByType = new HashMap<>();
-        for (Class<? extends Provider<?>> provider : providers) {
-            Class<?> providingBeanType = SeeTheEye.extractProviderTypeParameter(provider);
-            if (beansByType.containsKey(providingBeanType)) {
-                throw new SeeTheEyeException.ConfigInvalidException("Configured both, a provider and a bean for type: " + providingBeanType.getName());
-            }
-        }
-    }
 
 }

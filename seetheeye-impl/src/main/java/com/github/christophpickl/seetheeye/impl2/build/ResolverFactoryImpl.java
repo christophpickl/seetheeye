@@ -1,10 +1,7 @@
 package com.github.christophpickl.seetheeye.impl2.build;
 
 import com.github.christophpickl.seetheeye.api.MetaClass;
-import com.github.christophpickl.seetheeye.api.configuration.BeanDeclaration;
-import com.github.christophpickl.seetheeye.api.configuration.ConfigurationDeclaration;
-import com.github.christophpickl.seetheeye.api.configuration.InstanceDeclaration;
-import com.github.christophpickl.seetheeye.api.configuration.Scope;
+import com.github.christophpickl.seetheeye.api.configuration.*;
 import com.github.christophpickl.seetheeye.impl2.Resolver;
 import com.github.christophpickl.seetheeye.impl2.configuration.*;
 import com.github.christophpickl.seetheeye.impl2.validation.ConfigurationValidator;
@@ -12,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -39,22 +37,32 @@ public class ResolverFactoryImpl implements ResolverFactory {
         for (ConfigurationDeclaration configuration : configurations) {
             definitions.addAll(createBeans(configuration.getBeans()));
             definitions.addAll(createInstances(configuration.getInstances()));
+            definitions.addAll(createProviders(configuration.getProviders()));
         }
         DefinitionRepository repo = new DefinitionRepository(definitions);
         validator.validatePost(repo);
         return new Resolver(repo);
     }
 
-    private Collection<InstanceDefinition<?>> createInstances(Collection<InstanceDeclaration> instances) {
-        return instances.stream().map(this::createInstanceDefinition).collect(Collectors.toList());
-    }
-
-    private InstanceDefinition<?> createInstanceDefinition(InstanceDeclaration declaration) {
-        return new InstanceDefinition<>(declaration.getInstance(), declaration.getRegistrationTypes());
-    }
-
     private Collection<BeanDefinition<?>> createBeans(Collection<BeanDeclaration> beans) {
         return beans.stream().map(this::createBeanDefinition).collect(Collectors.toList());
+    }
+
+    private Collection<InstanceDefinition<?>> createInstances(Collection<InstanceDeclaration> instances) {
+        return instances.stream().map(
+                declaration -> new InstanceDefinition<>(declaration.getInstance(), declaration.getRegistrationTypes()))
+                .collect(Collectors.toList());
+    }
+
+    private Collection<Definition<?>> createProviders(Collection<ProviderDeclaration> providers) {
+        return providers.stream().map(declaration -> {
+            MetaClass installType = declaration.getInstallType();
+            // FIXME dependencies for provider have to be saved but... dependencies can only be resolved a little bit later :(
+            Constructor constructor = analyzer.findProperConstructor(installType);
+            Provider<Object> provider = (Provider<Object>) installType.instantiate(constructor);
+            MetaClass provideeType = installType.getSingleTypeParamaterOfSingleInterface();
+            return new ProviderDefinition<>(provider, provideeType);
+        }).collect(Collectors.toList());
     }
 
     private BeanDefinition<?> createBeanDefinition(BeanDeclaration declaration) {

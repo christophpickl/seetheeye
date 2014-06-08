@@ -2,7 +2,7 @@ package com.github.christophpickl.seetheeye.impl2.build;
 
 import com.github.christophpickl.seetheeye.api.MetaClass;
 import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
-import com.github.christophpickl.seetheeye.impl2.ReflectionUtil;
+import com.github.christophpickl.seetheeye.api.ReflectionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

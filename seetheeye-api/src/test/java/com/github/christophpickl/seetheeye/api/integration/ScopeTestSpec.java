@@ -59,7 +59,7 @@ public abstract class ScopeTestSpec extends BaseTest {
     }
 
     static class ConstructorCounting {
-        static int constructorCalled; // watch out to reset the variable before/after running test against this
+        static int constructorCalled; // watch out to reset the variable before/after running testbeans against this
         ConstructorCounting() {
             constructorCalled++;
         }
@@ -67,7 +67,7 @@ public abstract class ScopeTestSpec extends BaseTest {
 
     @Singleton
     static class ConstructorCountingWithSingletonAnnotation {
-        static int constructorCalled; // watch out to reset the variable before/after running test against this
+        static int constructorCalled; // watch out to reset the variable before/after running testbeans against this
         ConstructorCountingWithSingletonAnnotation() {
             constructorCalled++;
         }

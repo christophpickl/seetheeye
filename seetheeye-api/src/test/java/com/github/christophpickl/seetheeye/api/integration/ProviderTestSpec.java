@@ -44,15 +44,13 @@ public abstract class ProviderTestSpec extends BaseTest {
         assertThat(Empty2Provider.constructorCalled, equalTo(1));
     }
 
-    public void installProvider_forTwoDifferentBeanTypes_doesntMixUpBecauseOfTypeErasure() {
+    public void installProvider_forTwoDifferentBeanTypes_doesntMixUpAlthoughOfTypeErasure() {
         SeeTheEyeApi eye = newEye(config -> {
             config.installProvider(EmptyProvider.class);
             config.installProvider(Empty2Provider.class);
         });
-        assertThat(eye.get(Empty2.class), instanceOf(Empty2.class));
         assertThat(eye.get(Empty.class), instanceOf(Empty.class));
-        assertThat(eye.get(EmptyProvider.class), instanceOf(EmptyProvider.class));
-        assertThat(eye.get(Empty2Provider.class), instanceOf(Empty2Provider.class));
+        assertThat(eye.get(Empty2.class), instanceOf(Empty2.class));
     }
 
     public void installProvider_providerWithDependencies_resolvesDependenciesAndReturnsInstance() {
@@ -63,6 +61,16 @@ public abstract class ProviderTestSpec extends BaseTest {
         assertThat(eye.get(EmptyProviderWithDependencyForEmpty2.class).subBean, instanceOf(Empty2.class));
         assertThat(eye.get(Empty.class), sameInstance(EmptyProviderWithDependencyForEmpty2.PROVIDING_INSTANCE));
     }
+
+    public void installProvider_providerWithProviderDependency_resolvesDependencyAndReturnsInstance() {
+        SeeTheEyeApi eye = newEye(config -> {
+            config.installProvider(Empty2Provider.class);
+            config.installProvider(ProviderWithDependencyForProvider.class);
+        });
+        assertThat(eye.get(Empty.class), sameInstance(ProviderWithDependencyForProvider.PROVIDING_INSTANCE));
+        assertThat(eye.get(ProviderWithDependencyForProvider.class).subBean, instanceOf(Empty2Provider.class));
+    }
+
 
     @Test(expectedExceptions = SeeTheEyeException.ConfigInvalidException.class)
     public void installProvider_sameTypeAsBeanAndAsProvider_throwException() {
@@ -85,7 +93,7 @@ public abstract class ProviderTestSpec extends BaseTest {
     }
 
     private static class Empty2Provider implements Provider<Empty2> {
-        static int constructorCalled; // watch out to reset the variable before/after running test against this
+        static int constructorCalled; // watch out to reset the variable before/after running testbeans against this
         static final Empty2 PROVIDING_INSTANCE = new Empty2();
         public Empty2Provider() {
             constructorCalled++;
@@ -113,6 +121,13 @@ public abstract class ProviderTestSpec extends BaseTest {
         static final Empty PROVIDING_INSTANCE = new Empty();
         final Empty2 subBean;
         EmptyProviderWithDependencyForEmpty2(Empty2 subBean) { this.subBean = subBean; }
+        @Override public Empty get() { return PROVIDING_INSTANCE; }
+    }
+
+    private static class ProviderWithDependencyForProvider implements Provider<Empty> {
+        static final Empty PROVIDING_INSTANCE = new Empty();
+        final Provider<Empty2> subBean;
+        ProviderWithDependencyForProvider(Provider<Empty2> subBean) { this.subBean = subBean; }
         @Override public Empty get() { return PROVIDING_INSTANCE; }
     }
 

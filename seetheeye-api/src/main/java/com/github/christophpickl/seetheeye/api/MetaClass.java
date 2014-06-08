@@ -1,6 +1,7 @@
 package com.github.christophpickl.seetheeye.api;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -17,7 +18,7 @@ public class MetaClass {
     private final boolean isInnerClass;
 
     public MetaClass(Class<?> enclosedClass) {
-        this.enclosedClass = enclosedClass;
+        this.enclosedClass = Preconditions.checkNotNull(enclosedClass);
         int modifiers = enclosedClass.getModifiers();
         this.isAbstract = Modifier.isAbstract(modifiers);
         boolean isStatic = Modifier.isStatic(modifiers);
@@ -57,6 +58,10 @@ public class MetaClass {
         return getDeclaredConstructors().size() == 1;
     }
 
+    public <T> T instantiate(Constructor<T> constructor, Object... arguments) {
+        return ReflectionUtil.instantiate(constructor, arguments);
+    }
+
     public Constructor getSingleConstructor() {
         if (!hasOnlySingleConstructor()) throw new IllegalStateException("Type " + getName() + " does not have one constructor!");
         return getDeclaredConstructors().iterator().next();
@@ -72,6 +77,10 @@ public class MetaClass {
                 "but given type '" + checkInterface.getName() + "' is not an interface!");
         }
         return checkInterface.getEnclosedClass().isAssignableFrom(enclosedClass);
+    }
+
+    public MetaClass getSingleTypeParamaterOfSingleInterface() {
+        return new MetaClass(ReflectionUtil.extractFirstTypeParameterOfFirstInterface(enclosedClass));
     }
 
     @Override

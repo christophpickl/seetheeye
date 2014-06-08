@@ -1,7 +1,9 @@
 package com.github.christophpickl.seetheeye.impl2.configuration;
 
 import com.github.christophpickl.seetheeye.api.MetaClass;
-import com.github.christophpickl.seetheeye.impl2.ReflectionUtil;
+import com.github.christophpickl.seetheeye.api.ReflectionException;
+import com.github.christophpickl.seetheeye.api.ReflectionUtil;
+import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
 import com.google.common.base.Preconditions;
 
 import java.lang.reflect.Constructor;
@@ -43,7 +45,11 @@ public class BeanDefinition<T> implements Definition<T> {
 
     @Override
     public T instance(Collection<Object> arguments) {
-        return ReflectionUtil.instantiate(constructor, arguments.toArray());
+        try {
+            return ReflectionUtil.instantiate(constructor, arguments.toArray());
+        } catch (ReflectionException.InstantiationException e) {
+            throw new SeeTheEyeException.BeanInstantiationException(constructor.getDeclaringClass(), e);
+        }
     }
 
 }

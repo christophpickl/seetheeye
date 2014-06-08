@@ -1,7 +1,7 @@
 package com.github.christophpickl.seetheeye.api.integration;
 
 import com.github.christophpickl.seetheeye.api.*;
-import com.github.christophpickl.seetheeye.api.test.TestableActionfiedConfiguration;
+import com.github.christophpickl.seetheeye.api.configuration.TestableActionfiedConfiguration;
 import org.testng.annotations.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

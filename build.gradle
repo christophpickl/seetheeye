@@ -26,9 +26,9 @@ subprojects {
         maxHeapSize = "512m"
     }
 
-    // provide a test jar
+    // provide a testbeans jar
     task testJar(type: Jar, dependsOn: testClasses) {
-        baseName = "${project.archivesBaseName}-test"
+        baseName = "${project.archivesBaseName}-testbeans"
         from sourceSets.test.output
     }
     configurations {

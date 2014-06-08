@@ -18,6 +18,7 @@ public abstract class Configuration {
     private final Collection<Configuration> subConfigurations = new LinkedList<>();
     private final Collection<BeanDeclaration> beans = new LinkedList<>();
     private final Collection<InstanceDeclaration> instances = new LinkedList<>();
+    private final Collection<ProviderDeclaration> providers = new LinkedList<>();
 
     protected abstract void configure();
 
@@ -39,11 +40,14 @@ public abstract class Configuration {
 
     public final void installProvider(Class<? extends Provider<?>> providerType) {
         LOG.trace("installProvider(providerType={})", providerType.getName());
-        throw new UnsupportedOperationException("not implemented");
+        ProviderDeclaration declaration = new ProviderDeclaration(providerType);
+        providers.add(declaration);
+
     }
 
     public final void installConfiguration(Configuration subConfiguration, Configuration... moreSubConfigurations) {
         if (true) {
+            // FIXME implement installConfiguration
             throw new RuntimeException("not yet implemented");
         }
         subConfigurations.add(subConfiguration);
@@ -54,7 +58,7 @@ public abstract class Configuration {
     public final ConfigurationDeclaration toDeclaration() {
         LOG.trace("new configuration for this: {}", getClass().getName());
         configure();
-        return new ConfigurationDeclaration(beans, instances);
+        return new ConfigurationDeclaration(beans, instances, providers);
     }
 
 }

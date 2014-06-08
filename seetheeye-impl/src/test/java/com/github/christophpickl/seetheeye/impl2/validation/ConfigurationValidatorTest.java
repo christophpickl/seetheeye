@@ -5,6 +5,8 @@ import com.github.christophpickl.seetheeye.api.SeeTheEyeException;
 import com.github.christophpickl.seetheeye.api.configuration.BeanDeclaration;
 import com.github.christophpickl.seetheeye.api.configuration.ConfigurationDeclaration;
 import com.github.christophpickl.seetheeye.api.configuration.InstanceDeclaration;
+import com.github.christophpickl.seetheeye.api.configuration.ProviderDeclaration;
+import com.github.christophpickl.seetheeye.api.Beans;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
@@ -16,7 +18,7 @@ public class ConfigurationValidatorTest {
 
 
     @Test public void validatePublicConcreteBeanIsOk() {
-        validate(TestableEmptyValidatorBean.class);
+        validate(Beans.class);
     }
 
     @Test public void validateConcreteStaticNestedClassIsOk() {
@@ -44,9 +46,10 @@ public class ConfigurationValidatorTest {
         for (Class<?> beanType : beanTypes) {
             beans.add(new BeanDeclaration(new MetaClass(beanType)));
         }
-        // TODO add test for installInstance
+        // TODO add testbeans for installInstance and installProvider
         Collection<InstanceDeclaration> instances = Collections.emptyList();
-        new ConfigurationValidator().validatePre(Arrays.asList(new ConfigurationDeclaration(beans, instances)));
+        Collection<ProviderDeclaration> providers = Collections.emptyList();
+        new ConfigurationValidator().validatePre(Arrays.asList(new ConfigurationDeclaration(beans, instances, providers)));
     }
 
     static class ConcreteStaticNestedClass { }
