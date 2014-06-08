@@ -25,7 +25,7 @@ public abstract class ProviderTestSpec extends BaseTest {
 
     public void installProvider_getProviderHimselfInsteadProvidingType_returnProviderAsExpected() {
         assertThat(newEye(config -> config.installProvider(EmptyProvider.class)).get(EmptyProvider.class),
-                notNullValue());
+                instanceOf(EmptyProvider.class));
     }
 
     public void installProvider_registerForInterfaceType_returnProviderInternalProvidingInstance() {
@@ -81,9 +81,17 @@ public abstract class ProviderTestSpec extends BaseTest {
     }
 
     @Test(expectedExceptions = SeeTheEyeException.UnresolvableBeanException.class,
-          dependsOnMethods = "installProvider_forBeanTypeXAndRequestForBeanX_returnInstanceProvidedByCustomProvider")
+        dependsOnMethods = "installProvider_forBeanTypeXAndRequestForBeanX_returnInstanceProvidedByCustomProvider")
     public void installProvider_providingTypeBySubInterfaceAndGetBySuperInterface_throwUnresolvableException() {
         newEye(config -> config.installProvider(InterfaceSubProvider.class)).get(Interface.class);
+    }
+
+    @Test(expectedExceptions = SeeTheEyeException.CyclicDependencyException.class)
+    public void installProvider_providerHavingCyclicDependencyOnEachOther_throwException() {
+        newEye(config -> {
+            config.installProvider(ProviderADependsOnProviderB.class);
+            config.installProvider(ProviderBDependsOnProviderA.class);
+        });
     }
 
 
@@ -129,6 +137,19 @@ public abstract class ProviderTestSpec extends BaseTest {
         final Provider<Empty2> subBean;
         ProviderWithDependencyForProvider(Provider<Empty2> subBean) { this.subBean = subBean; }
         @Override public Empty get() { return PROVIDING_INSTANCE; }
+    }
+
+
+    private static class ProviderADependsOnProviderB implements Provider<Empty> {
+        final ProviderBDependsOnProviderA/*Provider<Empty2>*/ subBean;
+        ProviderADependsOnProviderB(ProviderBDependsOnProviderA subBean) { this.subBean = subBean; }
+        @Override public Empty get() { return new Empty(); }
+    }
+
+    private static class ProviderBDependsOnProviderA implements Provider<Empty2> {
+        final ProviderADependsOnProviderB subBean;
+        ProviderBDependsOnProviderA(ProviderADependsOnProviderB subBean) { this.subBean = subBean; }
+        @Override public Empty2 get() { return new Empty2(); }
     }
 
 }

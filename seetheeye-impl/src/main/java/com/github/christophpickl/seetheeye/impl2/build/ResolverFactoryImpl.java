@@ -41,7 +41,13 @@ public class ResolverFactoryImpl implements ResolverFactory {
         }
         DefinitionRepository repo = new DefinitionRepository(definitions);
         validator.validatePost(repo);
-        return new Resolver(repo);
+        Resolver resolver = new Resolver(repo);
+        postInit(resolver);
+        return resolver;
+    }
+
+    private void postInit(Resolver resolver) {
+        // FIXME implement me
     }
 
     private Collection<BeanDefinition<?>> createBeans(Collection<BeanDeclaration> beans) {
