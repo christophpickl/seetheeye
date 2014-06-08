@@ -7,6 +7,7 @@ import com.github.christophpickl.seetheeye.impl2.configuration.DefinitionReposit
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
@@ -28,10 +29,11 @@ public class Resolver {
         }
         Definition<T> bean = repo.lookupRegistered(beanType);
         return bean.instanceEagerOrLazyIDontCare(this);
-//        return (T) bean.instance(createArguments(bean.getDependencies()));
+//      OLD implementation: return (T) bean.instance(createArguments(bean.getDependencies()));
     }
 
     public Collection<Object> createArguments(Collection<MetaClass> dependencies) {
+        LOG.trace("createArguments(dependencies={})", Arrays.toString(dependencies.toArray()));
         // (Object) cast IS necessary! dont delete it.
         return dependencies.stream().map(d -> (Object) get(d.getEnclosedClass())).collect(Collectors.toCollection(LinkedList::new));
     }

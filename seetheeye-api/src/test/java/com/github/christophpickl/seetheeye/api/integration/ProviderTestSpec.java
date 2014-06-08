@@ -86,7 +86,7 @@ public abstract class ProviderTestSpec extends BaseTest {
         newEye(config -> config.installProvider(InterfaceSubProvider.class)).get(Interface.class);
     }
 
-    @Test(expectedExceptions = SeeTheEyeException.CyclicDependencyException.class)
+    @Test(expectedExceptions = SeeTheEyeException.ConfigInvalidException.class)
     public void installProvider_providerHavingCyclicDependencyOnEachOther_throwException() {
         newEye(config -> {
             config.installProvider(ProviderADependsOnProviderB.class);

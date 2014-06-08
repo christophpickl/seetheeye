@@ -58,8 +58,8 @@ public class MetaClass {
         return getDeclaredConstructors().size() == 1;
     }
 
-    public <T> T instantiate(Constructor<T> constructor, Object... arguments) {
-        return ReflectionUtil.instantiate(constructor, arguments);
+    public <T> T instantiate(Constructor<T> constructor, Collection<Object> arguments) {
+        return ReflectionUtil.instantiate(constructor, arguments.toArray());
     }
 
     public Constructor getSingleConstructor() {

@@ -34,20 +34,31 @@ public class ResolverFactoryImpl implements ResolverFactory {
         validator.validatePre(configurations);
 
         Collection<Definition<?>> definitions = new LinkedList<>();
-        Collection<ProviderDefinition<?>> providerDefinitions = new LinkedList<>();
+        ProviderInitializer providerInitializer = new ProviderInitializer();
+
         for (ConfigurationDeclaration configuration : configurations) {
             definitions.addAll(createBeans(configuration.getBeans()));
             definitions.addAll(createInstances(configuration.getInstances()));
 
             Collection<ProviderDefinition<?>> perConfigurationProviderDefinition = createProviders(configuration.getProviders());
+            Collection<ProviderBeanDefinition<?>> perConfigurationProviderBeanDefinition =
+                perConfigurationProviderDefinition.stream()
+                    // additionally install for each providee type, a provider bean type.
+                    .map(d -> {
+                        // TODO weeeh, static cast :(
+                        InstantiatonTemplate<Provider<?>> template = (InstantiatonTemplate<Provider<?>>) d.getProviderTemplate();
+                        return new ProviderBeanDefinition<>(template.getType(), d.getInstallType(), template.getDependencies());
+                    }).collect(Collectors.toList());
             definitions.addAll(perConfigurationProviderDefinition);
-            providerDefinitions.addAll(perConfigurationProviderDefinition);
+            definitions.addAll(perConfigurationProviderBeanDefinition);
+            providerInitializer.addAllProviders(perConfigurationProviderDefinition);
+            providerInitializer.addAllProviderBeans(perConfigurationProviderBeanDefinition);
         }
-        definitions.addAll(providerDefinitions.stream().map(ProviderBeanDefinition::new).collect(Collectors.toList()));
+
         DefinitionRepository repo = new DefinitionRepository(definitions);
         validator.validatePost(repo);
         Resolver resolver = new Resolver(repo);
-
+        providerInitializer.init(resolver);
         return resolver;
     }
 
@@ -70,18 +81,15 @@ public class ResolverFactoryImpl implements ResolverFactory {
         Collection<ProviderDefinition<?>> definitions = new LinkedList<>();
         for (ProviderDeclaration declaration : declarations) {
             MetaClass installType = declaration.getInstallType();
-            // FIXME dependencies for provider have to be saved but... dependencies can only be resolved a little bit later :(
             Constructor constructor = analyzer.findProperConstructor(installType);
-            Provider<Object> provider = (Provider<Object>) installType.instantiate(constructor);
+            Collection<MetaClass> dependencies = analyzer.findDependencies(constructor);
             MetaClass provideeType = installType.getSingleTypeParamaterOfSingleInterface();
-            ProviderDefinition<Object> providerDefinition = new ProviderDefinition<>(provider, provideeType);
+            ProviderDefinition<Object> providerDefinition = new ProviderDefinition<>(
+                new InstantiatonTemplate(installType, constructor, dependencies), provideeType);
             definitions.add(providerDefinition);
         }
         return definitions;
     }
-
-//        return new ProviderBeanDefinition(installType, constructor, dependencies, provider);
-
 
     private BeanDefinition<?> createBeanDefinition(BeanDeclaration declaration) {
         Constructor constructor = analyzer.findProperConstructor(declaration.getInstallType());

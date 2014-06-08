@@ -35,11 +35,11 @@ public abstract class SeeTheEyeException extends RuntimeException {
         }
     }
 
-    public static class CyclicDependencyException extends SeeTheEyeException {
-        public CyclicDependencyException(String message) {
-            super(message);
-        }
-    }
+//    public static class CyclicDependencyException extends SeeTheEyeException {
+//        public CyclicDependencyException(String message) {
+//            super(message);
+//        }
+//    }
 
 
     public static class InvalidBeanException extends SeeTheEyeException {
