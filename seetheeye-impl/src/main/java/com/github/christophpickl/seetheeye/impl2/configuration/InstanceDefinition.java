@@ -1,6 +1,7 @@
 package com.github.christophpickl.seetheeye.impl2.configuration;
 
 import com.github.christophpickl.seetheeye.api.MetaClass;
+import com.github.christophpickl.seetheeye.impl2.Resolver;
 import com.google.common.base.Preconditions;
 
 import java.util.Arrays;
@@ -39,7 +40,8 @@ public class InstanceDefinition<T> implements Definition<T> {
     }
 
     @Override
-    public T instance(Collection<Object> arguments) {
+    public T instanceEagerOrLazyIDontCare(Resolver resolver) {
         return instance;
     }
+
 }

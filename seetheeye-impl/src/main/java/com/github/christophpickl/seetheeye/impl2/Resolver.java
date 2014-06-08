@@ -26,11 +26,12 @@ public class Resolver {
         if (!repo.isRegistered(beanType)) {
             throw new SeeTheEyeException.UnresolvableBeanException(beanType);
         }
-        Definition bean = repo.lookupRegistered(beanType);
-        return (T) bean.instance(createArguments(bean.getDependencies()));
+        Definition<T> bean = repo.lookupRegistered(beanType);
+        return bean.instanceEagerOrLazyIDontCare(this);
+//        return (T) bean.instance(createArguments(bean.getDependencies()));
     }
 
-    private Collection<Object> createArguments(Collection<MetaClass> dependencies) {
+    public Collection<Object> createArguments(Collection<MetaClass> dependencies) {
         // (Object) cast IS necessary! dont delete it.
         return dependencies.stream().map(d -> (Object) get(d.getEnclosedClass())).collect(Collectors.toCollection(LinkedList::new));
     }

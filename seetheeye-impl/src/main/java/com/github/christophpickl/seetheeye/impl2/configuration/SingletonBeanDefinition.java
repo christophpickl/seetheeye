@@ -1,6 +1,7 @@
 package com.github.christophpickl.seetheeye.impl2.configuration;
 
 import com.github.christophpickl.seetheeye.api.MetaClass;
+import com.github.christophpickl.seetheeye.impl2.Resolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,10 +19,10 @@ public class SingletonBeanDefinition<T> extends BeanDefinition<T> {
     }
 
     @Override
-    public T instance(Collection<Object> arguments) {
+    public T instanceEagerOrLazyIDontCare(Resolver resolver) {
         if (lazySingleton == null) {
             LOG.trace("Lazily creating singleton bean.");
-            lazySingleton = super.instance(arguments);
+            lazySingleton = super.instanceEagerOrLazyIDontCare(resolver);
         } else {
             LOG.trace("Returning yet initialized singelton bean.");
         }

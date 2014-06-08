@@ -37,6 +37,7 @@ public class BeanDeclaration implements Declaration {
         return registrationTypes;
     }
 
+    @Override
     public MetaClass getInstallType() {
         return installType;
     }

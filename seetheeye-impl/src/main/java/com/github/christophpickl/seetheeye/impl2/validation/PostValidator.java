@@ -24,7 +24,7 @@ class PostValidator {
         return errors;
     }
 
-    private void recursivelyCheckForCyclicDependency(Definition definition) {
+    private void recursivelyCheckForCyclicDependency(Definition<?> definition) {
         if (markedBeans.contains(definition)) {
             errors.add("Found cyclic dependency for bean: " + definition.getInstallType().getName());
             return;
@@ -38,7 +38,7 @@ class PostValidator {
                         " for bean: " + definition.getInstallType());
                 continue;
             }
-            Definition dependencyDefinition = repo.lookupRegistered(dependency.getEnclosedClass());
+            Definition<?> dependencyDefinition = repo.lookupRegistered(dependency.getEnclosedClass());
             recursivelyCheckForCyclicDependency(dependencyDefinition);
         }
 

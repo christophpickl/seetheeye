@@ -34,20 +34,26 @@ public class ResolverFactoryImpl implements ResolverFactory {
         validator.validatePre(configurations);
 
         Collection<Definition<?>> definitions = new LinkedList<>();
+        Collection<ProviderDefinition<?>> providerDefinitions = new LinkedList<>();
         for (ConfigurationDeclaration configuration : configurations) {
             definitions.addAll(createBeans(configuration.getBeans()));
             definitions.addAll(createInstances(configuration.getInstances()));
-            definitions.addAll(createProviders(configuration.getProviders()));
+
+            Collection<ProviderDefinition<?>> perConfigurationProviderDefinition = createProviders(configuration.getProviders());
+            definitions.addAll(perConfigurationProviderDefinition);
+            providerDefinitions.addAll(perConfigurationProviderDefinition);
         }
+        definitions.addAll(providerDefinitions.stream().map(ProviderBeanDefinition::new).collect(Collectors.toList()));
         DefinitionRepository repo = new DefinitionRepository(definitions);
         validator.validatePost(repo);
         Resolver resolver = new Resolver(repo);
-        postInit(resolver);
+
         return resolver;
     }
 
+
     private void postInit(Resolver resolver) {
-        // FIXME implement me
+        // FIXME implement me: eager instantiate singeltons
     }
 
     private Collection<BeanDefinition<?>> createBeans(Collection<BeanDeclaration> beans) {
@@ -60,16 +66,22 @@ public class ResolverFactoryImpl implements ResolverFactory {
                 .collect(Collectors.toList());
     }
 
-    private Collection<Definition<?>> createProviders(Collection<ProviderDeclaration> providers) {
-        return providers.stream().map(declaration -> {
+    private Collection<ProviderDefinition<?>> createProviders(Collection<ProviderDeclaration> declarations) {
+        Collection<ProviderDefinition<?>> definitions = new LinkedList<>();
+        for (ProviderDeclaration declaration : declarations) {
             MetaClass installType = declaration.getInstallType();
             // FIXME dependencies for provider have to be saved but... dependencies can only be resolved a little bit later :(
             Constructor constructor = analyzer.findProperConstructor(installType);
             Provider<Object> provider = (Provider<Object>) installType.instantiate(constructor);
             MetaClass provideeType = installType.getSingleTypeParamaterOfSingleInterface();
-            return new ProviderDefinition<>(provider, provideeType);
-        }).collect(Collectors.toList());
+            ProviderDefinition<Object> providerDefinition = new ProviderDefinition<>(provider, provideeType);
+            definitions.add(providerDefinition);
+        }
+        return definitions;
     }
+
+//        return new ProviderBeanDefinition(installType, constructor, dependencies, provider);
+
 
     private BeanDefinition<?> createBeanDefinition(BeanDeclaration declaration) {
         Constructor constructor = analyzer.findProperConstructor(declaration.getInstallType());

@@ -1,6 +1,7 @@
 package com.github.christophpickl.seetheeye.impl2.configuration;
 
 import com.github.christophpickl.seetheeye.api.MetaClass;
+import com.github.christophpickl.seetheeye.impl2.Resolver;
 
 import java.util.Collection;
 
@@ -12,6 +13,6 @@ public interface Definition<T> {
 
     Collection<MetaClass> getDependencies();
 
-    T instance(Collection<Object> arguments);
+    T instanceEagerOrLazyIDontCare(Resolver resolver);
 
 }
