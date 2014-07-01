@@ -19,15 +19,27 @@ class SampleApp {
         }
     }
 
-    interface Salutator { String salutation(); }
-    static class InformalSalutator implements Salutator { @Override public String salutation() { return "Hello"; } }
+    interface Salutator {
+        String salutation();
+    }
+    static class InformalSalutator implements Salutator {
+        @Override public String salutation() {
+            return "Hello";
+        }
+    }
 
-    interface Greeter { void greet(String name); }
+    interface Greeter {
+        void greet(String name);
+    }
     static class StandardOutGreeter implements Greeter {
         private final Salutator salutator;
         // @Inject is optional if only a single constructor is existing anyway
-        StandardOutGreeter(Salutator salutator) { this.salutator = salutator; }
-        @Override public void greet(String name) { System.out.println(salutator.salutation() + " " + name + "!"); }
+        StandardOutGreeter(Salutator salutator) {
+            this.salutator = salutator;
+        }
+        @Override public void greet(String name) {
+            System.out.println(salutator.salutation() + " " + name + "!");
+        }
     }
 
 }
